@@ -7,10 +7,11 @@ Plataforma SaaS de bots Discord. Clientes registram, escolhem um plano (Free/Pre
 ```
 arx-store/
 ├── web/          → Dashboard Next.js 14 (App Router)
-├── bot/          → Bot Manager discord.js + @magicyan/discord
 ├── plans/        → Documentacao e planos de arquitetura
 └── supabase/     → Migrations e schema SQL
 ```
+
+> O bot Manager está em repositorio separado: [arx-store-bot](https://github.com/icarofffffts/arx-store-bot)
 
 ## Stack
 
