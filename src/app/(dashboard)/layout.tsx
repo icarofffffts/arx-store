@@ -4,6 +4,8 @@ import { redirect } from "next/navigation"
 import { Sidebar } from "./_components/sidebar"
 import { UserInfo } from "./_components/user-info"
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardLayout({
   children,
 }: {
