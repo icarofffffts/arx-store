@@ -1,8 +1,10 @@
 import { NextAuthOptions } from 'next-auth'
 import DiscordProvider from 'next-auth/providers/discord'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 
-const supabaseAdmin = createClient()
+function getAdminClient() {
+  return createAdminClient()
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -31,7 +33,7 @@ export const authOptions: NextAuthOptions = {
           ? `https://cdn.discordapp.com/avatars/${discordProfile.id}/${discordProfile.avatar}.png?size=256`
           : null
 
-        await supabaseAdmin
+        await getAdminClient()
           .schema('arx_store')
           .from('platform_users')
           .upsert({

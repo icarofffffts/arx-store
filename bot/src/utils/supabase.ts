@@ -3,7 +3,7 @@ import { config } from '../config'
 
 let _botSupabase: SupabaseClient | null = null
 
-export function createBotSupabase(): SupabaseClient {
+export function createBotSupabase() {
   if (_botSupabase) return _botSupabase
 
   _botSupabase = createClient(config.supabaseUrl, config.supabaseKey, {
@@ -14,6 +14,6 @@ export function createBotSupabase(): SupabaseClient {
   return _botSupabase
 }
 
-export function getBotSupabase(): SupabaseClient {
+export function getBotSupabase() {
   return _botSupabase ?? createBotSupabase()
 }

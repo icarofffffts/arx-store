@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { SessionProvider } from '@/components/providers/session-provider'
+import { ClientSessionProvider } from '@/components/providers/client-session-provider'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { Toaster } from '@/components/ui/toaster'
@@ -22,14 +22,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className="dark">
       <body className={`${inter.variable} font-sans bg-background text-foreground antialiased`}>
-        <SessionProvider>
+        <ClientSessionProvider>
           <div className="flex min-h-screen flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
           <Toaster />
-        </SessionProvider>
+        </ClientSessionProvider>
       </body>
     </html>
   )
