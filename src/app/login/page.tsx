@@ -1,6 +1,8 @@
-import { getArxLoginUrl } from "@/lib/arx-auth"
+import { getArxLoginUrl } from "@/lib/arx-urls"
 import { LoginButtons } from "./login-buttons"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+
+export const dynamic = 'force-dynamic'
 
 export default function LoginPage() {
   const arxLoginUrl = getArxLoginUrl("/servidores")
