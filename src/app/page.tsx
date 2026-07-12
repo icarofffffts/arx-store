@@ -29,7 +29,7 @@ const plans = [
     description: "Ideal para comecar",
     features: ["1 bot ativo (Shield ou Aegis)", "1 servidor", "Comandos basicos", "Suporte da comunidade"],
     cta: "Comecar Gratis",
-    href: "/login",
+    href: "/dashboard",
     highlighted: false,
   },
   {
@@ -97,7 +97,7 @@ export default function LandingPage() {
             <div className="pt-4 animate-reveal" style={{ animationDelay: '0.2s' }}>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white px-10 h-14 text-base shadow-[0_0_100px_rgba(225,29,72,0.1)]">
-                  <Link href="/login">
+                  <Link href="/dashboard">
                     Comecar Gratis
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
@@ -258,7 +258,7 @@ export default function LandingPage() {
               </p>
             </div>
             <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white px-10 h-14 text-base shadow-[0_0_100px_rgba(225,29,72,0.15)]">
-              <Link href="/login">
+              <Link href="/dashboard">
                 Criar Conta Gratis
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
