@@ -1,11 +1,27 @@
 import { getArxLoginUrl } from "@/lib/arx-urls"
 import { LoginButtons } from "./login-buttons"
-import { ShoppingBag } from "lucide-react"
+import { ShoppingBag, AlertCircle } from "lucide-react"
 import Link from "next/link"
 
-export const dynamic = 'force-dynamic'
+type SearchParams = Promise<{ error?: string }>
 
-export default function LoginPage() {
+const ERROR_MESSAGES: Record<string, string> = {
+  OAuthSignin: "Erro ao iniciar login com Discord. Verifique a configuracao.",
+  OAuthCallback: "Redirect URI invalido ou nao configurado no Discord Developer Portal.",
+  OAuthCreateAccount: "Erro ao criar conta. Tente novamente.",
+  EmailCreateAccount: "Erro ao criar conta. Tente novamente.",
+  Callback: "Erro no callback de autenticacao. Verifique o NEXTAUTH_URL.",
+  OAuthAccountNotLinked: "Esta conta Discord ja esta vinculada a outro usuario.",
+  EmailSignin: "Erro ao enviar e-mail de login.",
+  CredentialsSignin: "Credenciais invalidas.",
+  SessionRequired: "Voce precisa estar logado para acessar esta pagina.",
+  default: "Erro ao autenticar. Tente novamente.",
+}
+
+export default async function LoginPage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams
+  const error = params.error
+  const errorMsg = error ? ERROR_MESSAGES[error] || error : null
   const arxLoginUrl = getArxLoginUrl("/servidores")
 
   return (
@@ -26,6 +42,15 @@ export default function LoginPage() {
         </div>
 
         <div className="glass p-8 border-red-500/10">
+          {errorMsg && (
+            <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-amber-400">Falha na autenticacao</p>
+                <p className="text-xs text-amber-400/70">{errorMsg}</p>
+              </div>
+            </div>
+          )}
           <LoginButtons arxLoginUrl={arxLoginUrl} />
           <div className="mt-6 pt-6 border-t border-white/[0.05]">
             <p className="text-center text-xs text-slate-500">
