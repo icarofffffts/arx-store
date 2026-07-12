@@ -19,35 +19,29 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
-        const discordProfile = profile as {
+        const dp = profile as {
           id: string
           username: string
           avatar: string | null
           email: string | null
           global_name: string | null
         }
-        token.discordId = discordProfile.id
+        token.discordId = dp.id
         token.accessToken = account.access_token
 
-        const avatarUrl = discordProfile.avatar
-          ? `https://cdn.discordapp.com/avatars/${discordProfile.id}/${discordProfile.avatar}.png?size=256`
+        const avatarUrl = dp.avatar
+          ? `https://cdn.discordapp.com/avatars/${dp.id}/${dp.avatar}.png?size=256`
           : null
 
         await getAdminClient()
-          .schema('arx_store')
-          .from('platform_users')
+          .schema('store')
+          .from('users')
           .upsert({
-            discord_id: discordProfile.id,
-            username: discordProfile.username,
-            global_name: discordProfile.global_name || discordProfile.username,
+            open_id: `discord_${dp.id}`,
+            discord_id: dp.id,
+            email: dp.email,
+            name: dp.global_name || dp.username,
             avatar_url: avatarUrl,
-            email: discordProfile.email,
-            access_token: account.access_token,
-            refresh_token: account.refresh_token ?? null,
-            token_expires_at: account.expires_at
-              ? new Date(account.expires_at * 1000).toISOString()
-              : null,
-            last_login: new Date().toISOString(),
           }, { onConflict: 'discord_id' })
       }
       return token

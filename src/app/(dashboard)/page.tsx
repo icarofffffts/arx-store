@@ -1,18 +1,14 @@
 import Link from "next/link"
 import { getAuthSession } from "@/lib/session"
 import { createClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/server"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
 import {
   Activity,
@@ -26,15 +22,14 @@ import {
   Circle,
 } from "lucide-react"
 
-interface BotRecord {
+interface GuildBot {
   id: string
-  client_id: string
-  name: string
-  avatar_url: string | null
+  bot_slug: string
+  bot_name: string | null
   guild_id: string
-  guild_name: string
+  guild_name: string | null
   status: string
-  last_active: string | null
+  created_at: string
 }
 
 export default async function DashboardPage() {
@@ -50,37 +45,56 @@ export default async function DashboardPage() {
   if (!session) return null
 
   const userName = session.user.name || "Usuário"
+  const discordId = session.user.discordId
   const supabase = createClient()
-  const adminClient = createAdminClient()
 
-  const userId = session.user.discordId || session.user.email
+  let userPlan = "free"
+  let subscriptionStatus: string | null = null
+  let bots: GuildBot[] = []
+  let activeBots = 0
 
-  const [userRes, botsRes] = await Promise.all([
-    userId
-      ? supabase
-          .schema("arx_store")
-          .from("platform_users")
-          .select("plan, subscription_id, subscription_status")
-          .or(
-            userId.includes("@")
-              ? `email.eq.${userId}`
-              : `discord_id.eq.${userId}`
-          )
-          .maybeSingle()
-      : Promise.resolve({ data: null }),
-    adminClient
-      .schema("arx_store")
-      .from("bots")
-      .select("*")
-      .order("created_at", { ascending: false }),
-  ])
+  if (discordId) {
+    const { data: user } = await supabase
+      .schema("store")
+      .from("users")
+      .select("id")
+      .eq("discord_id", discordId)
+      .maybeSingle()
 
-  const user = userRes.data
-  const bots = (botsRes.data || []) as BotRecord[]
+    if (user) {
+      const { data: sub } = await supabase
+        .schema("store")
+        .from("subscriptions")
+        .select("id, status, plans(slug)")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle()
 
-  const userPlan = user?.plan || "free"
-  const activeBots = bots.filter((b) => b.status === "online").length
-  const serverCount = Array.from(new Set(bots.map((b) => b.guild_id))).length
+      const planSlug = (sub as any)?.plans?.slug
+      if (planSlug) {
+        userPlan = planSlug
+        subscriptionStatus = (sub as any)?.status || null
+      }
+
+      const { data: guildBots } = await supabase
+        .schema("store")
+        .from("guild_bots")
+        .select("id, bot_slug, bot_name, guild_id, status, created_at, guilds(guild_id, name)")
+        .order("created_at", { ascending: false })
+
+      bots = (guildBots || []).map((b: any) => ({
+        id: b.id,
+        bot_slug: b.bot_slug,
+        bot_name: b.bot_name,
+        guild_id: b.guild_id,
+        guild_name: b.guilds?.name || "Desconhecido",
+        status: b.status,
+        created_at: b.created_at,
+      }))
+
+      activeBots = bots.filter((b) => b.status === "active").length
+    }
+  }
 
   const planLabel =
     userPlan === "enterprise"
@@ -120,7 +134,9 @@ export default async function DashboardPage() {
             <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{serverCount}</div>
+            <div className="text-2xl font-bold">
+              {new Set(bots.map((b) => b.guild_id)).size}
+            </div>
             <p className="text-xs text-muted-foreground">guilds com bots</p>
           </CardContent>
         </Card>
@@ -148,16 +164,16 @@ export default async function DashboardPage() {
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Próxima Fatura
+              Status
             </CardTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {user?.subscription_id ? formatDate(new Date()) : "---"}
+              {subscriptionStatus === "active" ? "Ativa" : "---"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {user?.subscription_status === "active"
+              {subscriptionStatus === "active"
                 ? "Assinatura ativa"
                 : "Sem assinatura"}
             </p>
@@ -169,10 +185,10 @@ export default async function DashboardPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Seus Bots</h2>
-            <Link href="/dashboard/bots/personalizado">
+            <Link href="/dashboard/servidores">
               <Button size="sm">
                 <Plus className="mr-1 h-4 w-4" />
-                Ativar Bot
+                Adicionar Bot
               </Button>
             </Link>
           </div>
@@ -186,7 +202,7 @@ export default async function DashboardPage() {
               <p className="text-sm text-muted-foreground mt-1 mb-6">
                 Ative seu primeiro bot para começar
               </p>
-              <Link href="/dashboard/bots/personalizado">
+              <Link href="/dashboard/servidores">
                 <Button>
                   <Plus className="mr-1 h-4 w-4" />
                   Ativar seu primeiro bot
@@ -199,24 +215,18 @@ export default async function DashboardPage() {
                 <Card key={bot.id} className="glass">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      {bot.avatar_url ? (
-                        <img
-                          src={bot.avatar_url}
-                          alt={bot.name}
-                          className="h-10 w-10 rounded-full"
-                        />
-                      ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5865F2]/20">
-                          <Bot className="h-5 w-5 text-[#5865F2]" />
-                        </div>
-                      )}
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5865F2]/20">
+                        <Bot className="h-5 w-5 text-[#5865F2]" />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium truncate">{bot.name}</p>
+                          <p className="font-medium truncate">
+                            {bot.bot_name || bot.bot_slug}
+                          </p>
                           <Circle
                             className={cn(
                               "h-2 w-2 fill-current",
-                              bot.status === "online"
+                              bot.status === "active"
                                 ? "text-emerald-500"
                                 : "text-muted-foreground"
                             )}
@@ -225,14 +235,9 @@ export default async function DashboardPage() {
                         <p className="text-xs text-muted-foreground truncate">
                           {bot.guild_name}
                         </p>
-                        {bot.last_active && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Ativo {formatDate(bot.last_active)}
-                          </p>
-                        )}
                         <div className="mt-2">
                           <Link
-                            href={`/dashboard/bots/${bot.client_id}`}
+                            href={`/dashboard/servidores`}
                             className="text-xs text-[#5865F2] hover:underline inline-flex items-center gap-1"
                           >
                             <Settings className="h-3 w-3" />
@@ -252,16 +257,16 @@ export default async function DashboardPage() {
           <h2 className="text-lg font-semibold">Ações Rápidas</h2>
           <Card className="glass">
             <CardContent className="space-y-3 p-4">
-              <Link href="/dashboard/bots/personalizado" className="block">
+              <Link href="/dashboard/servidores" className="block">
                 <Button variant="default" className="w-full justify-start">
                   <Plus className="mr-2 h-4 w-4" />
-                  Ativar Bot
+                  Adicionar Bot
                 </Button>
               </Link>
-              <Link href="/loja" className="block">
+              <Link href="/dashboard/planos" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <ShoppingBag className="mr-2 h-4 w-4" />
-                  Ver Loja
+                  Ver Planos
                 </Button>
               </Link>
             </CardContent>

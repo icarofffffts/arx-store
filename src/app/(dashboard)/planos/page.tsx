@@ -77,23 +77,34 @@ export default async function PlansPage() {
   if (!session) return null
 
   const supabase = createClient()
-  const userId = session.user.discordId || session.user.email
+  const discordId = session.user.discordId
 
-  const { data: user } = userId
-    ? await supabase
-        .schema("arx_store")
-        .from("platform_users")
-        .select("plan, email")
-        .or(
-          userId.includes("@")
-            ? `email.eq.${userId}`
-            : `discord_id.eq.${userId}`
-        )
+  let currentPlan = "free"
+  let userEmail = session.user.email || ""
+
+  if (discordId) {
+    const { data: user } = await supabase
+      .schema("store")
+      .from("users")
+      .select("id, email")
+      .eq("discord_id", discordId)
+      .maybeSingle()
+
+    if (user?.email) userEmail = user.email
+
+    if (user) {
+      const { data: sub } = await supabase
+        .schema("store")
+        .from("subscriptions")
+        .select("plans(slug)")
+        .eq("user_id", user.id)
+        .eq("status", "active")
         .maybeSingle()
-    : { data: null }
 
-  const currentPlan = user?.plan || "free"
-  const userEmail = user?.email || session.user.email || ""
+      const planSlug = (sub as any)?.plans?.slug
+      if (planSlug) currentPlan = planSlug
+    }
+  }
 
   return (
     <div className="animate-in space-y-8">

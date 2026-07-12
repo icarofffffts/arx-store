@@ -48,35 +48,66 @@ export default async function BillingPage() {
   if (!session) return null
 
   const supabase = createClient()
-  const userId = session.user.discordId || session.user.email
+  const discordId = session.user.discordId
 
-  const { data: user } = userId
-    ? await supabase
-        .schema("arx_store")
-        .from("platform_users")
-        .select(
-          "plan, subscription_id, subscription_status, subscription_end_date"
-        )
-        .or(
-          userId.includes("@")
-            ? `email.eq.${userId}`
-            : `discord_id.eq.${userId}`
-        )
+  let currentPlan = "free"
+  let subscriptionId: string | null = null
+  let subscriptionStatus: string | null = null
+  let subscriptionEnd: string | null = null
+  let payments: PaymentRecord[] = []
+
+  if (discordId) {
+    const { data: user } = await supabase
+      .schema("store")
+      .from("users")
+      .select("id")
+      .eq("discord_id", discordId)
+      .maybeSingle()
+
+    if (user) {
+      const { data: sub } = await supabase
+        .schema("store")
+        .from("subscriptions")
+        .select("id, status, mp_subscription_id, plans(slug)")
+        .eq("user_id", user.id)
+        .eq("status", "active")
         .maybeSingle()
-    : { data: null }
 
-  const { data: payments } =
-    await supabase
-      .schema("arx_store")
-      .from("payments")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(20)
+      if (sub) {
+        const planSlug = (sub as any)?.plans?.slug
+        if (planSlug) currentPlan = planSlug
+        subscriptionId = (sub as any)?.mp_subscription_id || (sub as any)?.id
+        subscriptionStatus = (sub as any)?.status
+      }
+    }
+  }
 
-  const currentPlan = user?.plan || "free"
-  const subscriptionId = user?.subscription_id
-  const subscriptionStatus = user?.subscription_status
-  const subscriptionEnd = user?.subscription_end_date
+  if (discordId) {
+    const { data: user } = await supabase
+      .schema("store")
+      .from("users")
+      .select("id")
+      .eq("discord_id", discordId)
+      .maybeSingle()
+
+    if (user) {
+      const { data: invoices } = await supabase
+        .schema("store")
+        .from("invoices")
+        .select("id, created_at, amount_cents, status, plans(slug)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20)
+
+      payments = (invoices || []).map((inv: any) => ({
+        id: inv.id,
+        created_at: inv.created_at,
+        plan: inv.plans?.slug || "unknown",
+        amount: (inv.amount_cents || 0) / 100,
+        status: inv.status || "pending",
+      }))
+    }
+  }
 
   const planLabel =
     currentPlan === "enterprise"
