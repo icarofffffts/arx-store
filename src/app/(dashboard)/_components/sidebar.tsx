@@ -38,10 +38,14 @@ export function Sidebar({ userPlan }: SidebarProps) {
         : "Free"
 
   return (
-    <aside className="flex w-64 flex-col border-r border-border bg-card">
-      <div className="flex h-14 items-center gap-2 px-4 border-b border-border">
-        <Bot className="h-6 w-6 text-[#5865F2]" />
-        <span className="text-lg font-bold text-glow">ARX Store</span>
+    <aside className="flex w-64 flex-col border-r border-white/[0.04] bg-[#030014]/80 backdrop-blur">
+      <div className="flex h-14 items-center gap-2 px-4 border-b border-white/[0.04]">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#5865F2] to-[#7c3aed] flex items-center justify-center">
+          <Bot className="h-4 w-4 text-white" />
+        </div>
+        <span className="text-lg font-bold tracking-tight">
+          <span className="gradient-text">ARX</span> Store
+        </span>
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
