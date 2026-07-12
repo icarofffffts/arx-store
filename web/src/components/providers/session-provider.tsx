@@ -115,6 +115,16 @@ function InnerAuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <>{children}</>
+  }
+
   return (
     <NextAuthSessionProvider>
       <InnerAuthProvider>{children}</InnerAuthProvider>
