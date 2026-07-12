@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Shield, Bot, Headphones, Wallet, Zap, Code, Check, ArrowRight, ShoppingBag, Server, Star } from "lucide-react"
+import { Shield, Bot, Headphones, Wallet, Zap, Server, Check, ArrowRight, ShoppingBag, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
@@ -9,35 +9,35 @@ const features = [
   { icon: Shield, title: "Bots Prontos", description: "Shield Security, Aegis, Ticket, Invite e Mod. Plug-and-play." },
   { icon: Bot, title: "Painel Web", description: "Gerencie tudo pelo dashboard. Zero comandos complicados." },
   { icon: Zap, title: "1 Clique", description: "Adicione bots ao seu servidor com apenas um clique." },
-  { icon: Wallet, title: "Preços Justos", description: "Planos do gratuito ao enterprise que cabem no seu bolso." },
-  { icon: Server, title: "Host Confiável", description: "Infraestrutura própria com 99.9% de uptime garantido." },
-  { icon: Headphones, title: "Suporte 24h", description: "Equipe sempre disponível via ticket para te ajudar." },
+  { icon: Wallet, title: "Precos Justos", description: "Planos do gratuito ao enterprise que cabem no seu bolso." },
+  { icon: Server, title: "Host Confiavel", description: "Infraestrutura propria com 99.9% de uptime garantido." },
+  { icon: Headphones, title: "Suporte 24h", description: "Equipe sempre disponivel via ticket para te ajudar." },
 ]
 
 const stats = [
   { value: "5+", label: "Bots Profissionais" },
   { value: "99.9%", label: "Uptime" },
   { value: "Suporte 24h", label: "Via Ticket" },
-  { value: "R$ 0", label: "Plano Grátis" },
+  { value: "R$ 0", label: "Plano Gratis" },
 ]
 
 const plans = [
   {
     name: "Free",
     price: "R$ 0",
-    period: "/mês",
-    description: "Ideal para começar",
-    features: ["1 bot ativo (Shield ou Aegis)", "1 servidor", "Comandos básicos", "Suporte da comunidade"],
-    cta: "Começar Grátis",
+    period: "/mes",
+    description: "Ideal para comecar",
+    features: ["1 bot ativo (Shield ou Aegis)", "1 servidor", "Comandos basicos", "Suporte da comunidade"],
+    cta: "Comecar Gratis",
     href: "/login",
     highlighted: false,
   },
   {
     name: "Premium",
     price: "R$ 29,90",
-    period: "/mês",
+    period: "/mes",
     description: "O mais popular",
-    features: ["Todos os bots disponíveis", "Até 3 servidores", "Painel web completo", "Suporte via ticket 24h", "Editor de configuração"],
+    features: ["Todos os bots disponiveis", "Ate 3 servidores", "Painel web completo", "Suporte via ticket 24h", "Editor de configuracao"],
     cta: "Assinar Premium",
     href: "/planos",
     highlighted: true,
@@ -45,9 +45,9 @@ const plans = [
   {
     name: "Enterprise",
     price: "R$ 79,90",
-    period: "/mês",
+    period: "/mes",
     description: "Para servidores grandes",
-    features: ["Tudo do Premium", "Servidores ilimitados", "White-label", "Suporte prioritário", "Bot personalizado"],
+    features: ["Tudo do Premium", "Servidores ilimitados", "White-label", "Suporte prioritario", "Bot personalizado"],
     cta: "Falar com Vendas",
     href: "/planos",
     highlighted: false,
@@ -56,147 +56,131 @@ const plans = [
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#030014]">
+    <div className="min-h-screen bg-black text-white selection:bg-red-500/30 overflow-x-hidden">
 
       {/* ================================================================ */}
       {/* HERO */}
       {/* ================================================================ */}
-      <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 py-24 text-center overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0 dot-grid opacity-40" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[#7c3aed]/20 rounded-full blur-[120px] opacity-60" />
-        <div className="absolute bottom-0 left-1/4 w-[600px] h-[400px] bg-[#5865F2]/15 rounded-full blur-[100px] opacity-50" />
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[300px] bg-[#7c3aed]/10 rounded-full blur-[80px] opacity-40" />
-
-        <div className="relative z-10 max-w-4xl mx-auto">
-          {/* Trust badge */}
-          <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.06] backdrop-blur">
-            <div className="flex -space-x-2">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-br from-[#5865F2] to-[#7c3aed] border-2 border-[#030014] flex items-center justify-center">
-                  <Star className="w-3 h-3 text-white fill-white" />
-                </div>
-              ))}
-            </div>
-            <span className="text-sm text-muted-foreground">Confiado por servidores no Discord</span>
-          </div>
-
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
-            Bots Discord{" "}
-            <span className="gradient-text">Profissionais</span>
-            <br />
-            para seu servidor
-          </h1>
-
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Plataforma completa de bots para Discord. Proteção, moderação, tickets e muito mais.
-            Ative em 1 clique e gerencie tudo pelo painel web.
-          </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild size="lg" className="w-full sm:w-auto px-10 h-14 text-base bg-[#5865F2] hover:bg-[#4752c4] glow">
-              <Link href="/login">
-                Começar Grátis
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto px-10 h-14 text-base border-white/[0.08] hover:bg-white/[0.03]">
-              <Link href="/planos">Ver Planos</Link>
-            </Button>
-          </div>
-
-          {/* Feature pills */}
-          <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-            {["Proteção Anti-Scam", "Sistema de Tickets", "Convites c/ Recompensa", "Moderação Automática"].map((f) => (
-              <span key={f} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/[0.03] border border-white/[0.06] text-muted-foreground">
-                <Check className="w-3 h-3 text-[#7c3aed]" />
-                {f}
-              </span>
-            ))}
-          </div>
+      <section className="relative pt-32 md:pt-48 pb-24 md:pb-40 border-b border-white/[0.05]">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full bg-[radial-gradient(circle_at_50%_0%,rgba(225,29,72,0.1),transparent_50%)]" />
+          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-red-500/5 rounded-full blur-[120px]" />
+          <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[120px]" style={{ animationDelay: '1s' }} />
         </div>
 
-        {/* Decorative bottom glow */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#5865F2]/30 to-transparent" />
+        <div className="container mx-auto px-6 max-w-6xl relative z-10">
+          <div className="text-center space-y-12">
+            <div className="space-y-8 animate-reveal">
+              <div className="flex justify-center">
+                <div className="w-20 h-20 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                  <ShoppingBag className="h-10 w-10 text-red-500" />
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                  Plataforma de Bots Profissionais
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 animate-reveal" style={{ animationDelay: '0.1s' }}>
+              <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] lg:px-12 text-glow">
+                Bots Discord Profissionais<span className="text-red-600">.</span>
+              </h1>
+              <p className="text-lg md:text-xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
+                Plataforma completa de bots para Discord. Protecao, moderacao, tickets e muito mais.
+                Ative em 1 clique e gerencie tudo pelo painel web.
+              </p>
+            </div>
+
+            <div className="pt-4 animate-reveal" style={{ animationDelay: '0.2s' }}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white px-10 h-14 text-base shadow-[0_0_100px_rgba(225,29,72,0.1)]">
+                  <Link href="/login">
+                    Comecar Gratis
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="px-10 h-14 text-base border-white/10 hover:bg-white/5 text-slate-300">
+                  <Link href="/planos">Ver Planos</Link>
+                </Button>
+              </div>
+              <div className="mt-10 flex justify-center items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                {["Protecao Anti-Scam", "Tickets", "Convites", "Moderacao", "99.9% Uptime"].map((f) => (
+                  <span key={f} className="hover:text-red-500 transition-colors">{f}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ================================================================ */}
       {/* STATS BAR */}
       {/* ================================================================ */}
-      <section className="relative border-y border-white/[0.04] bg-white/[0.01] backdrop-blur">
-        <div className="container flex flex-wrap items-center justify-center gap-8 sm:gap-16 py-10">
-          {stats.map((stat) => (
-            <div key={stat.label + stat.value} className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold gradient-text">{stat.value}</div>
-              {stat.label && <div className="text-xs text-muted-foreground mt-1.5 tracking-wide uppercase">{stat.label}</div>}
-            </div>
-          ))}
+      <section className="py-12 border-b border-white/[0.05] bg-white/[0.01]">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label + stat.value} className="text-center">
+                <div className="text-2xl md:text-3xl font-bold text-red-500">{stat.value}</div>
+                {stat.label && <div className="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em]">{stat.label}</div>}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ================================================================ */}
       {/* FEATURES */}
       {/* ================================================================ */}
-      <section className="container py-24 lg:py-32">
-        <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4 border-[#7c3aed]/30 text-[#7c3aed] bg-[#7c3aed]/5">
-            Recursos
-          </Badge>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Tudo que você{" "}
-            <span className="gradient-text">precisa</span>
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Ferramentas profissionais para gerenciar, proteger e engajar sua comunidade.
-          </p>
-        </div>
+      <main className="container mx-auto px-6 max-w-6xl py-24 space-y-40">
+        <section className="space-y-12">
+          <div className="flex items-end justify-between border-b border-white/[0.05] pb-8">
+            <div className="space-y-2">
+              <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-red-500">Recursos</h2>
+              <p className="text-3xl md:text-4xl font-black text-white tracking-tight">Tudo que voce precisa</p>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {features.map((feature, i) => {
-            const Icon = feature.icon
-            return (
-              <Card
-                key={feature.title}
-                className={cn(
-                  "glass-card border-white/[0.05] hover:border-[#5865F2]/20 transition-all duration-300 group",
-                  "animate-in",
-                )}
-                style={{ animationDelay: `${i * 80}ms` }}
-              >
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#5865F2]/20 to-[#7c3aed]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-[#5865F2]/10">
-                    <Icon className="h-6 w-6 text-[#5865F2]" />
-                  </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, i) => {
+              const Icon = feature.icon
+              return (
+                <Card
+                  key={feature.title}
+                  className={cn(
+                    "bg-white/[0.02] border-white/[0.05] hover:border-red-500/20 transition-all duration-300 group",
+                    "animate-in",
+                  )}
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
+                  <CardHeader>
+                    <div className="w-12 h-12 rounded-lg bg-red-500/10 border border-red-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Icon className="h-6 w-6 text-red-500" />
+                    </div>
+                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </section>
+      </main>
 
       {/* ================================================================ */}
       {/* PRICING */}
       {/* ================================================================ */}
-      <section className="relative py-24 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#7c3aed]/3 to-transparent" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#5865F2]/8 rounded-full blur-[150px]" />
-
-        <div className="relative container">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4 border-[#5865F2]/30 text-[#5865F2] bg-[#5865F2]/5">
-              Planos
-            </Badge>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              Planos para todos os{" "}
-              <span className="gradient-text">tamanhos</span>
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Escolha o plano ideal. Sem taxa de setup. Cancele quando quiser.
-            </p>
+      <section className="py-24 border-t border-white/[0.05] bg-white/[0.01]">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-red-500">Planos</h2>
+            <p className="text-3xl md:text-4xl font-black text-white tracking-tight">Planos para todos os tamanhos</p>
+            <p className="text-slate-400 max-w-xl mx-auto">Escolha o plano ideal. Sem taxa de setup. Cancele quando quiser.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -204,15 +188,15 @@ export default function LandingPage() {
               <Card
                 key={plan.name}
                 className={cn(
-                  "relative flex flex-col border-white/[0.06] bg-white/[0.02] backdrop-blur",
+                  "relative flex flex-col border-white/[0.06] bg-white/[0.02]",
                   "animate-in",
-                  plan.highlighted && "border-[#5865F2]/40 glow scale-[1.03] bg-[#5865F2]/[0.03]"
+                  plan.highlighted && "border-red-500/30 shadow-[0_0_60px_rgba(225,29,72,0.1)] scale-[1.03]"
                 )}
                 style={{ animationDelay: `${i * 100}ms` }}
               >
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-0 right-0 mx-auto w-fit">
-                    <Badge className="bg-gradient-to-r from-[#5865F2] to-[#7c3aed] hover:from-[#5865F2] hover:to-[#7c3aed] border-0 shadow-lg shadow-[#5865F2]/20">
+                    <Badge className="bg-red-600 hover:bg-red-600 border-0 shadow-lg shadow-red-500/20">
                       Mais Popular
                     </Badge>
                   </div>
@@ -229,8 +213,11 @@ export default function LandingPage() {
                   <ul className="space-y-3">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3 text-sm">
-                        <Check className="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
+                        <Check className={cn(
+                          "h-4 w-4 mt-0.5 shrink-0",
+                          plan.highlighted ? "text-red-500" : "text-slate-500"
+                        )} />
+                        <span className="text-slate-400">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -242,8 +229,8 @@ export default function LandingPage() {
                     className={cn(
                       "w-full h-11",
                       plan.highlighted
-                        ? "bg-[#5865F2] hover:bg-[#4752c4]"
-                        : "border-white/[0.08] hover:bg-white/[0.03]"
+                        ? "bg-red-600 hover:bg-red-700 shadow-[0_0_30px_rgba(225,29,72,0.2)]"
+                        : "border-white/10 hover:bg-white/5 text-slate-300"
                     )}
                   >
                     <Link href={plan.href}>{plan.cta}</Link>
@@ -258,30 +245,24 @@ export default function LandingPage() {
       {/* ================================================================ */}
       {/* CTA */}
       {/* ================================================================ */}
-      <section className="relative py-24 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#7c3aed]/10 via-transparent to-transparent" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[400px] bg-[#5865F2]/10 rounded-full blur-[120px]" />
-
-        <div className="relative z-10 container max-w-3xl mx-auto text-center">
-          <div className="glass-card p-10 md:p-14 border-[#5865F2]/10">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-[#5865F2] to-[#7c3aed] flex items-center justify-center mb-6 shadow-lg shadow-[#5865F2]/20">
-              <ShoppingBag className="h-8 w-8 text-white" />
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-red-500/5 via-transparent to-transparent" />
+        <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
+          <div className="glass p-10 md:p-14 border-red-500/10">
+            <div className="space-y-2 mb-8">
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+                Pronto para transformar seu servidor<span className="text-red-600">.</span>
+              </h2>
+              <p className="text-slate-400 max-w-xl mx-auto">
+                Junte-se a centenas de servidores que ja confiam no ARX Store. Comece gratuitamente hoje.
+              </p>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Pronto para{" "}
-              <span className="gradient-text">transformar</span> seu servidor?
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
-              Junte-se a centenas de servidores que já confiam no ARX Store. Comece gratuitamente hoje.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="px-10 h-14 text-base bg-[#5865F2] hover:bg-[#4752c4] glow">
-                <Link href="/login">
-                  Criar Conta Grátis
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
+            <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white px-10 h-14 text-base shadow-[0_0_100px_rgba(225,29,72,0.15)]">
+              <Link href="/login">
+                Criar Conta Gratis
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -289,16 +270,16 @@ export default function LandingPage() {
       {/* ================================================================ */}
       {/* FOOTER */}
       {/* ================================================================ */}
-      <footer className="border-t border-white/[0.04] py-10">
-        <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+      <footer className="border-t border-white/[0.05] py-10">
+        <div className="container mx-auto px-6 max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4 text-[#5865F2]" />
+            <ShoppingBag className="h-4 w-4 text-red-500" />
             <span>&copy; {new Date().getFullYear()} ARX Store. Todos os direitos reservados.</span>
           </div>
           <div className="flex items-center gap-8">
-            <Link href="/planos" className="hover:text-foreground transition-colors">Planos</Link>
-            <Link href="#" className="hover:text-foreground transition-colors">Termos</Link>
-            <Link href="#" className="hover:text-foreground transition-colors">Privacidade</Link>
+            <Link href="/planos" className="hover:text-white transition-colors">Planos</Link>
+            <Link href="#" className="hover:text-white transition-colors">Termos</Link>
+            <Link href="#" className="hover:text-white transition-colors">Privacidade</Link>
           </div>
         </div>
       </footer>
