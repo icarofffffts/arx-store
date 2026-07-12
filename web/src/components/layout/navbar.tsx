@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X, User, CreditCard, LogOut, ShoppingBag } from 'lucide-react'
-import { useAuth } from '@/components/providers/session-provider'
+import { useAuth } from '@/components/providers/auth-context'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import {

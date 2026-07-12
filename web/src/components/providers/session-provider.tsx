@@ -1,7 +1,8 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { SessionProvider as NextAuthSessionProvider, useSession, signOut } from 'next-auth/react'
+import { AuthContext } from './auth-context'
 
 interface User {
   id?: string
@@ -9,26 +10,6 @@ interface User {
   email?: string | null
   image?: string | null
   discordId?: string | null
-}
-
-interface AuthContextType {
-  user: User | null
-  session: any
-  status: 'loading' | 'authenticated' | 'unauthenticated'
-  isAuthenticated: boolean
-  logout: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  session: null,
-  status: 'loading',
-  isAuthenticated: false,
-  logout: async () => {},
-})
-
-export function useAuth() {
-  return useContext(AuthContext)
 }
 
 async function fetchArxMe(): Promise<User | null> {
@@ -84,10 +65,10 @@ function InnerAuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = nextAuthStatus === 'authenticated' || !!arxUser
   const status =
     nextAuthStatus === 'loading' || arxLoading
-      ? 'loading'
+      ? ('loading' as const)
       : isAuthenticated
-        ? 'authenticated'
-        : 'unauthenticated'
+        ? ('authenticated' as const)
+        : ('unauthenticated' as const)
 
   const logout = useCallback(async () => {
     if (nextAuthStatus === 'authenticated') {
