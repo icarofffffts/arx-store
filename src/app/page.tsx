@@ -39,7 +39,7 @@ const plans = [
     description: "O mais popular",
     features: ["Todos os bots disponiveis", "Ate 3 servidores", "Painel web completo", "Suporte via ticket 24h", "Editor de configuracao"],
     cta: "Assinar Premium",
-    href: "/planos",
+    href: "/dashboard/planos",
     highlighted: true,
   },
   {
@@ -49,7 +49,7 @@ const plans = [
     description: "Para servidores grandes",
     features: ["Tudo do Premium", "Servidores ilimitados", "White-label", "Suporte prioritario", "Bot personalizado"],
     cta: "Falar com Vendas",
-    href: "/planos",
+    href: "/dashboard/planos",
     highlighted: false,
   },
 ]
@@ -103,7 +103,7 @@ export default function LandingPage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="px-10 h-14 text-base border-white/10 hover:bg-white/5 text-slate-300">
-                  <Link href="/planos">Ver Planos</Link>
+                  <Link href="/dashboard/planos">Ver Planos</Link>
                 </Button>
               </div>
               <div className="mt-10 flex justify-center items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
@@ -277,9 +277,9 @@ export default function LandingPage() {
             <span>&copy; {new Date().getFullYear()} ARX Store. Todos os direitos reservados.</span>
           </div>
           <div className="flex items-center gap-8">
-            <Link href="/planos" className="hover:text-white transition-colors">Planos</Link>
-            <Link href="#" className="hover:text-white transition-colors">Termos</Link>
-            <Link href="#" className="hover:text-white transition-colors">Privacidade</Link>
+            <Link href="/dashboard/planos" className="hover:text-white transition-colors">Planos</Link>
+            <Link href="/termos" className="hover:text-white transition-colors">Termos</Link>
+            <Link href="/privacidade" className="hover:text-white transition-colors">Privacidade</Link>
           </div>
         </div>
       </footer>

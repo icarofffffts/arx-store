@@ -1,4 +1,4 @@
-import { getArxLoginUrl } from "@/lib/arx-urls"
+import { getArxLoginUrl } from "@/lib/arx-auth"
 import { LoginButtons } from "./login-buttons"
 import { ShoppingBag, AlertCircle } from "lucide-react"
 import Link from "next/link"
@@ -22,7 +22,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
   const params = await searchParams
   const error = params.error
   const errorMsg = error ? ERROR_MESSAGES[error] || error : null
-  const arxLoginUrl = getArxLoginUrl("/servidores")
+  const arxLoginUrl = getArxLoginUrl("/dashboard")
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-6 relative overflow-hidden">
@@ -55,7 +55,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
           <div className="mt-6 pt-6 border-t border-white/[0.05]">
             <p className="text-center text-xs text-slate-500">
               Ao entrar, voce concorda com nossos{" "}
-              <Link href="#" className="underline underline-offset-2 hover:text-white transition-colors">
+              <Link href="/termos" className="underline underline-offset-2 hover:text-white transition-colors">
                 Termos de Uso
               </Link>
             </p>

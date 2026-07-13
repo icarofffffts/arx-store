@@ -13,7 +13,7 @@ export function LoginButtons({ arxLoginUrl }: LoginButtonsProps) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <Button
-        onClick={() => signIn("discord", { callbackUrl: "/servidores" })}
+        onClick={() => signIn("discord", { callbackUrl: "/dashboard" })}
         className="w-full h-12 text-base bg-[#5865F2] hover:bg-[#4752C4]"
       >
         <svg

@@ -48,7 +48,7 @@ export function UserInfo({ name, email, image, plan }: UserInfoProps) {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => signOut({ callbackUrl: "/login" })}
+        onClick={() => signOut({ callbackUrl: "/" })}
         className="text-muted-foreground hover:text-foreground"
       >
         <LogOut className="h-4 w-4" />

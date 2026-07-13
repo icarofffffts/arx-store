@@ -16,8 +16,8 @@ import {
 
 const NAV_LINKS = [
   { href: '/dashboard', label: 'Dashboard', auth: true },
-  { href: '/planos', label: 'Planos', auth: false },
-  { href: '/servidores', label: 'Servidores', auth: true },
+  { href: '/dashboard/planos', label: 'Planos', auth: true },
+  { href: '/dashboard/servidores', label: 'Servidores', auth: true },
 ]
 
 function getInitials(name?: string | null): string {
@@ -69,13 +69,13 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild>
-                  <Link href="/perfil" className="cursor-pointer">
+                  <Link href="/dashboard/settings" className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
                     Meu Perfil
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/faturamento" className="cursor-pointer">
+                  <Link href="/dashboard/faturamento" className="cursor-pointer">
                     <CreditCard className="mr-2 h-4 w-4" />
                     Faturamento
                   </Link>
@@ -134,10 +134,10 @@ export function Navbar() {
                   <span className="text-sm">{user.name}</span>
                 </div>
                 <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileOpen(false)}>
-                  <Link href="/perfil"><User className="mr-2 h-4 w-4" />Meu Perfil</Link>
+                  <Link href="/dashboard/settings"><User className="mr-2 h-4 w-4" />Meu Perfil</Link>
                 </Button>
                 <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileOpen(false)}>
-                  <Link href="/faturamento"><CreditCard className="mr-2 h-4 w-4" />Faturamento</Link>
+                  <Link href="/dashboard/faturamento"><CreditCard className="mr-2 h-4 w-4" />Faturamento</Link>
                 </Button>
                 <Button
                   variant="ghost"
