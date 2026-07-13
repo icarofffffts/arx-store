@@ -6,6 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/server"
 
+export const dynamic = 'force-dynamic'
+
+const plansFallback = [
+  { id: "1", slug: "free", name: "Free", price_cents: 0, bot_limit: 1, max_guilds: 1, description: "Ideal para comecar", features: JSON.stringify(["1 bot ativo", "1 servidor", "Comandos basicos", "Suporte da comunidade"]), is_active: true },
+  { id: "2", slug: "premium", name: "Premium", price_cents: 2990, bot_limit: 999, max_guilds: 3, description: "O mais popular", features: JSON.stringify(["Todos os bots", "Ate 3 servidores", "Painel web completo", "Suporte via ticket 24h", "Editor de configuracao"]), is_active: true },
+  { id: "3", slug: "enterprise", name: "Enterprise", price_cents: 7990, bot_limit: 999, max_guilds: 999, description: "Para servidores grandes", features: JSON.stringify(["Tudo do Premium", "Servidores ilimitados", "White-label", "Suporte prioritario", "Bot personalizado"]), is_active: true },
+]
+
 const features = [
   { icon: Shield, title: "Bots Prontos", description: "Shield Security, Aegis, Ticket, Invite e Mod. Plug-and-play." },
   { icon: Bot, title: "Painel Web", description: "Gerencie tudo pelo dashboard. Zero comandos complicados." },
@@ -42,8 +50,10 @@ export default async function LandingPage() {
       .select("*")
       .eq("is_active", true)
       .order("price_cents", { ascending: true })
-    plans = plansData ?? []
-  } catch {}
+    plans = plansData ?? plansFallback
+  } catch {
+    plans = plansFallback
+  }
 
   const stats = [
     { value: `${activeBots}+`, label: "Bots Ativos" },
