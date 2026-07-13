@@ -1,13 +1,10 @@
 import Link from "next/link"
 import { getAuthSession } from "@/lib/session"
+import { createClient } from "@/lib/supabase/server"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Server, Users, Bot, Plus, Settings } from "lucide-react"
 
@@ -23,6 +20,8 @@ export default async function ServersPage() {
   } | null
 
   if (!session) return null
+
+  const supabase = createClient()
 
   const guilds: Array<{
     id: string
@@ -47,6 +46,49 @@ export default async function ServersPage() {
               g.owner || (BigInt(g.permissions) & BigInt(0x20)) === BigInt(0x20)
           )
         )
+      }
+    } catch {}
+  }
+
+  const guildIds = guilds.map((g) => g.id)
+  const botCountMap = new Map<string, number>()
+
+  if (guildIds.length > 0 && session.user.discordId) {
+    try {
+      const { data: user } = await supabase
+        .schema("store")
+        .from("users")
+        .select("id")
+        .eq("discord_id", session.user.discordId)
+        .maybeSingle()
+
+      if (user) {
+        const { data: dbGuilds } = await supabase
+          .schema("store")
+          .from("guilds")
+          .select("id, guild_id")
+          .in("guild_id", guildIds)
+          .eq("owner_user_id", user.id)
+
+        if (dbGuilds && dbGuilds.length > 0) {
+          const internalIds = dbGuilds.map((g) => g.id)
+
+          const { data: guildBots } = await supabase
+            .schema("store")
+            .from("guild_bots")
+            .select("guild_id")
+            .in("guild_id", internalIds)
+            .eq("status", "active")
+
+          const internalToDiscord = new Map(dbGuilds.map((g) => [g.id, g.guild_id]))
+
+          for (const bot of guildBots || []) {
+            const discordId = internalToDiscord.get(bot.guild_id)
+            if (discordId) {
+              botCountMap.set(discordId, (botCountMap.get(discordId) || 0) + 1)
+            }
+          }
+        }
       }
     } catch {}
   }
@@ -119,10 +161,11 @@ export default async function ServersPage() {
                       </p>
                     )}
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                      <Bot className="h-3 w-3" />0 bots ativos
+                      <Bot className="h-3 w-3" />
+                      {botCountMap.get(guild.id) || 0} bots ativos
                     </div>
                     <div className="mt-3 flex gap-2">
-                      <Link href={`/dashboard/bots/personalizado?guild=${guild.id}`}>
+                      <Link href={`/dashboard/servidores/${guild.id}`}>
                         <Button size="sm" variant="outline">
                           <Settings className="mr-1 h-3 w-3" />
                           Gerenciar Bots

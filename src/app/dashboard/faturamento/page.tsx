@@ -10,29 +10,18 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import {
   CreditCard,
   Calendar,
-  ArrowUpRight,
-  AlertTriangle,
   Receipt,
 } from "lucide-react"
+import { CancelSubscriptionDialog } from "./_components/cancel-dialog"
 
-interface PaymentRecord {
+interface InvoiceRecord {
   id: string
   created_at: string
-  plan: string
-  amount: number
+  amount_cents: number
   status: string
 }
 
@@ -51,10 +40,10 @@ export default async function BillingPage() {
   const discordId = session.user.discordId
 
   let currentPlan = "free"
-  let subscriptionId: string | null = null
   let subscriptionStatus: string | null = null
   let subscriptionEnd: string | null = null
-  let payments: PaymentRecord[] = []
+  let hasActiveSubscription = false
+  let invoices: InvoiceRecord[] = []
 
   if (discordId) {
     const { data: user } = await supabase
@@ -68,7 +57,7 @@ export default async function BillingPage() {
       const { data: sub } = await supabase
         .schema("store")
         .from("subscriptions")
-        .select("id, status, mp_subscription_id, plans(slug)")
+        .select("id, status, current_period_end, plans(slug)")
         .eq("user_id", user.id)
         .eq("status", "active")
         .maybeSingle()
@@ -76,36 +65,20 @@ export default async function BillingPage() {
       if (sub) {
         const planSlug = (sub as any)?.plans?.slug
         if (planSlug) currentPlan = planSlug
-        subscriptionId = (sub as any)?.mp_subscription_id || (sub as any)?.id
         subscriptionStatus = (sub as any)?.status
+        subscriptionEnd = (sub as any)?.current_period_end || null
+        hasActiveSubscription = true
       }
-    }
-  }
 
-  if (discordId) {
-    const { data: user } = await supabase
-      .schema("store")
-      .from("users")
-      .select("id")
-      .eq("discord_id", discordId)
-      .maybeSingle()
-
-    if (user) {
-      const { data: invoices } = await supabase
+      const { data: invoiceData } = await supabase
         .schema("store")
         .from("invoices")
-        .select("id, created_at, amount_cents, status, plans(slug)")
+        .select("id, created_at, amount_cents, status")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20)
 
-      payments = (invoices || []).map((inv: any) => ({
-        id: inv.id,
-        created_at: inv.created_at,
-        plan: inv.plans?.slug || "unknown",
-        amount: (inv.amount_cents || 0) / 100,
-        status: inv.status || "pending",
-      }))
+      invoices = (invoiceData || []) as InvoiceRecord[]
     }
   }
 
@@ -117,7 +90,7 @@ export default async function BillingPage() {
         : "Free"
 
   const statusVariant = (status: string) =>
-    status === "approved"
+    status === "approved" || status === "paid"
       ? "success"
       : status === "pending"
         ? "warning"
@@ -126,7 +99,7 @@ export default async function BillingPage() {
           : "secondary"
 
   const statusLabel = (status: string) =>
-    status === "approved"
+    status === "approved" || status === "paid"
       ? "Aprovado"
       : status === "pending"
         ? "Pendente"
@@ -155,7 +128,7 @@ export default async function BillingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <div>
                 <p className="text-sm text-muted-foreground">Plano</p>
                 <p className="text-lg font-semibold">{planLabel}</p>
@@ -171,12 +144,6 @@ export default async function BillingPage() {
                 </Badge>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">ID</p>
-                <p className="text-lg font-mono text-sm truncate">
-                  {subscriptionId ? subscriptionId.slice(0, 12) + "..." : "---"}
-                </p>
-              </div>
-              <div>
                 <p className="text-sm text-muted-foreground">
                   Próxima cobrança
                 </p>
@@ -188,27 +155,21 @@ export default async function BillingPage() {
               </div>
             </div>
           </CardContent>
-          {subscriptionId && (
+          {hasActiveSubscription ? (
             <CardFooter className="flex gap-2">
               {subscriptionStatus === "active" ? (
-                <>
-                  <form
-                    action={`https://www.mercadopago.com.br/subscriptions/${subscriptionId}/edit`}
-                    method="GET"
-                    target="_blank"
-                  >
-                    <Button variant="outline" type="submit">
-                      <ArrowUpRight className="mr-1 h-4 w-4" />
-                      Gerenciar Assinatura
-                    </Button>
-                  </form>
-                  <CancelSubscriptionDialog subscriptionId={subscriptionId} />
-                </>
+                <CancelSubscriptionDialog />
               ) : (
                 <Button asChild>
                   <a href="/dashboard/planos">Ver Planos</a>
                 </Button>
               )}
+            </CardFooter>
+          ) : (
+            <CardFooter>
+              <Button asChild>
+                <a href="/dashboard/planos">Ver Planos</a>
+              </Button>
             </CardFooter>
           )}
         </Card>
@@ -250,7 +211,7 @@ export default async function BillingPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {!payments || payments.length === 0 ? (
+          {invoices.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Receipt className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
@@ -263,29 +224,25 @@ export default async function BillingPage() {
                 <thead>
                   <tr className="border-b border-border text-left text-muted-foreground">
                     <th className="pb-3 pr-4 font-medium">Data</th>
-                    <th className="pb-3 pr-4 font-medium">Plano</th>
                     <th className="pb-3 pr-4 font-medium">Valor</th>
                     <th className="pb-3 font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(payments as PaymentRecord[]).map((payment) => (
-                    <tr key={payment.id} className="border-b border-border/50">
+                  {invoices.map((invoice) => (
+                    <tr key={invoice.id} className="border-b border-border/50">
                       <td className="py-3 pr-4">
-                        {formatDate(payment.created_at)}
-                      </td>
-                      <td className="py-3 pr-4 capitalize">
-                        {payment.plan}
+                        {formatDate(invoice.created_at)}
                       </td>
                       <td className="py-3 pr-4">
-                        {formatCurrency(payment.amount)}
+                        {formatCurrency((invoice.amount_cents || 0) / 100)}
                       </td>
                       <td className="py-3">
                         <Badge
-                          variant={statusVariant(payment.status)}
+                          variant={statusVariant(invoice.status)}
                           className="text-xs"
                         >
-                          {statusLabel(payment.status)}
+                          {statusLabel(invoice.status)}
                         </Badge>
                       </td>
                     </tr>
@@ -297,44 +254,5 @@ export default async function BillingPage() {
         </CardContent>
       </Card>
     </div>
-  )
-}
-
-function CancelSubscriptionDialog({
-  subscriptionId,
-}: {
-  subscriptionId: string
-}) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="destructive">
-          <AlertTriangle className="mr-1 h-4 w-4" />
-          Cancelar Assinatura
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Cancelar Assinatura</DialogTitle>
-          <DialogDescription>
-            Tem certeza que deseja cancelar sua assinatura? Você perderá acesso
-            aos benefícios ao final do período atual.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogTrigger asChild>
-            <Button variant="outline">Voltar</Button>
-          </DialogTrigger>
-          <form
-            action={`/api/mercadopago/subscriptions/${subscriptionId}/cancel`}
-            method="POST"
-          >
-            <Button variant="destructive" type="submit">
-              Confirmar Cancelamento
-            </Button>
-          </form>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   )
 }

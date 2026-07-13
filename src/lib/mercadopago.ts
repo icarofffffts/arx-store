@@ -51,7 +51,7 @@ export async function createPreference(input: CreatePreferenceInput) {
         email: input.payer.email,
       } : undefined,
       external_reference: input.externalReference,
-      notification_url: input.notificationUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/api/mercadopago/webhook`,
+      notification_url: input.notificationUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/api/webhooks/mercadopago`,
       back_urls: input.backUrls ? {
         success: input.backUrls.success,
         failure: input.backUrls.failure,

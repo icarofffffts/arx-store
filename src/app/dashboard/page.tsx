@@ -76,23 +76,26 @@ export default async function DashboardPage() {
         subscriptionStatus = (sub as any)?.status || null
       }
 
-      const { data: guildBots } = await supabase
-        .schema("store")
-        .from("guild_bots")
-        .select("id, bot_slug, bot_name, guild_id, status, created_at, guilds(guild_id, name)")
-        .order("created_at", { ascending: false })
+      if (sub) {
+        const { data: guildBots } = await supabase
+          .schema("store")
+          .from("guild_bots")
+          .select("id, bot_slug, bot_name, guild_id, status, created_at, guilds(name)")
+          .eq("subscription_id", sub.id)
+          .order("created_at", { ascending: false })
 
-      bots = (guildBots || []).map((b: any) => ({
-        id: b.id,
-        bot_slug: b.bot_slug,
-        bot_name: b.bot_name,
-        guild_id: b.guild_id,
-        guild_name: b.guilds?.name || "Desconhecido",
-        status: b.status,
-        created_at: b.created_at,
-      }))
+        bots = (guildBots || []).map((b: any) => ({
+          id: b.id,
+          bot_slug: b.bot_slug,
+          bot_name: b.bot_name,
+          guild_id: b.guild_id,
+          guild_name: b.guilds?.name || "Desconhecido",
+          status: b.status,
+          created_at: b.created_at,
+        }))
 
-      activeBots = bots.filter((b) => b.status === "active").length
+        activeBots = bots.filter((b) => b.status === "active").length
+      }
     }
   }
 
