@@ -95,8 +95,8 @@ export function GuildBotsManager({ guildId, guildName, bots }: Props) {
             <CardContent className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5865F2]/20">
-                    <Bot className="h-5 w-5 text-[#5865F2]" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+                    <Bot className="h-5 w-5 text-red-500" />
                   </div>
                   <div>
                     <p className="font-semibold">{bot.name}</p>

@@ -11,6 +11,7 @@ import {
   Bot,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatPlanLabel } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -29,22 +30,16 @@ interface SidebarProps {
 
 export function Sidebar({ userPlan }: SidebarProps) {
   const pathname = usePathname()
-
-  const planLabel =
-    userPlan === "enterprise"
-      ? "Enterprise"
-      : userPlan === "premium"
-        ? "Premium"
-        : "Free"
+  const planLabel = formatPlanLabel(userPlan)
 
   return (
-    <aside className="flex w-64 flex-col border-r border-white/[0.04] bg-[#030014]/80 backdrop-blur">
+    <aside className="flex w-64 flex-col border-r border-white/[0.04] bg-black/80 backdrop-blur">
       <div className="flex h-14 items-center gap-2 px-4 border-b border-white/[0.04]">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#5865F2] to-[#7c3aed] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
           <Bot className="h-4 w-4 text-white" />
         </div>
         <span className="text-lg font-bold tracking-tight">
-          <span className="gradient-text">ARX</span> Store
+          <span className="text-red-500">ARX</span> Store
         </span>
       </div>
 
@@ -61,7 +56,7 @@ export function Sidebar({ userPlan }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-[#5865F2]/10 text-[#5865F2]"
+                  ? "bg-red-500/10 text-red-500"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
@@ -76,7 +71,7 @@ export function Sidebar({ userPlan }: SidebarProps) {
       <div className="p-3">
         <div className="flex items-center gap-3 rounded-md px-3 py-2">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-[#5865F2] text-xs text-white">
+            <AvatarFallback className="bg-red-600 text-xs text-white">
               AR
             </AvatarFallback>
           </Avatar>

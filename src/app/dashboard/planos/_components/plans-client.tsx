@@ -73,12 +73,12 @@ export function PlansClient({ plans, currentPlanSlug }: Props) {
             key={plan.id}
             className={cn(
               "glass relative flex flex-col",
-              isCurrent && "border-[#5865F2] ring-1 ring-[#5865F2]/50"
+              isCurrent && "border-red-500 ring-1 ring-red-500/50"
             )}
           >
             {isCurrent && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-[#5865F2] hover:bg-[#5865F2]">
+                <Badge className="bg-red-600 hover:bg-red-600">
                   <Crown className="mr-1 h-3 w-3" />
                   Seu Plano
                 </Badge>

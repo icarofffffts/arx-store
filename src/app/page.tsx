@@ -1,9 +1,10 @@
 import Link from "next/link"
-import { Shield, Bot, Headphones, Wallet, Zap, Server, Check, ArrowRight, ShoppingBag, Star } from "lucide-react"
+import { Shield, Bot, Headphones, Wallet, Zap, Server, Check, ArrowRight, ShoppingBag } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { createClient } from "@/lib/supabase/server"
 
 const features = [
   { icon: Shield, title: "Bots Prontos", description: "Shield Security, Aegis, Ticket, Invite e Mod. Plug-and-play." },
@@ -14,47 +15,43 @@ const features = [
   { icon: Headphones, title: "Suporte 24h", description: "Equipe sempre disponivel via ticket para te ajudar." },
 ]
 
-const stats = [
-  { value: "5+", label: "Bots Profissionais" },
-  { value: "99.9%", label: "Uptime" },
-  { value: "Suporte 24h", label: "Via Ticket" },
-  { value: "R$ 0", label: "Plano Gratis" },
-]
+export default async function LandingPage() {
+  const supabase = createClient()
 
-const plans = [
-  {
-    name: "Free",
-    price: "R$ 0",
-    period: "/mes",
-    description: "Ideal para comecar",
-    features: ["1 bot ativo (Shield ou Aegis)", "1 servidor", "Comandos basicos", "Suporte da comunidade"],
-    cta: "Comecar Gratis",
-    href: "/dashboard",
-    highlighted: false,
-  },
-  {
-    name: "Premium",
-    price: "R$ 29,90",
-    period: "/mes",
-    description: "O mais popular",
-    features: ["Todos os bots disponiveis", "Ate 3 servidores", "Painel web completo", "Suporte via ticket 24h", "Editor de configuracao"],
-    cta: "Assinar Premium",
-    href: "/dashboard/planos",
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "R$ 79,90",
-    period: "/mes",
-    description: "Para servidores grandes",
-    features: ["Tudo do Premium", "Servidores ilimitados", "White-label", "Suporte prioritario", "Bot personalizado"],
-    cta: "Falar com Vendas",
-    href: "/dashboard/planos",
-    highlighted: false,
-  },
-]
+  let activeBots = 0
+  let activeGuilds = 0
+  let plans: any[] = []
 
-export default function LandingPage() {
+  try {
+    const { count: botCount } = await supabase
+      .schema("store")
+      .from("guild_bots")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "active")
+    activeBots = botCount ?? 0
+
+    const { count: guildCount } = await supabase
+      .schema("store")
+      .from("guilds")
+      .select("*", { count: "exact", head: true })
+    activeGuilds = guildCount ?? 0
+
+    const { data: plansData } = await supabase
+      .schema("store")
+      .from("plans")
+      .select("*")
+      .eq("is_active", true)
+      .order("price_cents", { ascending: true })
+    plans = plansData ?? []
+  } catch {}
+
+  const stats = [
+    { value: `${activeBots}+`, label: "Bots Ativos" },
+    { value: "99.9%", label: "Uptime" },
+    { value: `${activeGuilds}+`, label: "Servidores" },
+    { value: "Suporte 24h", label: "Via Ticket" },
+  ]
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-red-500/30 overflow-x-hidden">
 
@@ -65,7 +62,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full bg-[radial-gradient(circle_at_50%_0%,rgba(225,29,72,0.1),transparent_50%)]" />
           <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-red-500/5 rounded-full blur-[120px]" />
-          <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[120px]" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-red-500/5 rounded-full blur-[120px]" style={{ animationDelay: '1s' }} />
         </div>
 
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
@@ -184,60 +181,76 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {plans.map((plan, i) => (
-              <Card
-                key={plan.name}
-                className={cn(
-                  "relative flex flex-col border-white/[0.06] bg-white/[0.02]",
-                  "animate-in",
-                  plan.highlighted && "border-red-500/30 shadow-[0_0_60px_rgba(225,29,72,0.1)] scale-[1.03]"
-                )}
-                style={{ animationDelay: `${i * 100}ms` }}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-3 left-0 right-0 mx-auto w-fit">
-                    <Badge className="bg-red-600 hover:bg-red-600 border-0 shadow-lg shadow-red-500/20">
-                      Mais Popular
-                    </Badge>
-                  </div>
-                )}
-                <CardHeader className="text-center pb-2">
-                  <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
-                  <div className="mt-4">
-                    <span className="text-5xl font-bold tracking-tight">{plan.price}</span>
-                    <span className="text-muted-foreground ml-1 text-sm">{plan.period}</span>
-                  </div>
-                  <CardDescription className="mt-2 text-sm">{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1 pt-4">
-                  <ul className="space-y-3">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3 text-sm">
-                        <Check className={cn(
-                          "h-4 w-4 mt-0.5 shrink-0",
-                          plan.highlighted ? "text-red-500" : "text-slate-500"
-                        )} />
-                        <span className="text-slate-400">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    asChild
-                    variant={plan.highlighted ? "default" : "outline"}
-                    className={cn(
-                      "w-full h-11",
-                      plan.highlighted
-                        ? "bg-red-600 hover:bg-red-700 shadow-[0_0_30px_rgba(225,29,72,0.2)]"
-                        : "border-white/10 hover:bg-white/5 text-slate-300"
-                    )}
-                  >
-                    <Link href={plan.href}>{plan.cta}</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+            {plans.map((plan: any, i: number) => {
+              const featuresList = typeof plan.features === "string"
+                ? JSON.parse(plan.features as string)
+                : (plan.features ?? [])
+              const isHighlighted = plan.slug === "premium"
+
+              return (
+                <Card
+                  key={plan.id}
+                  className={cn(
+                    "relative flex flex-col border-white/[0.06] bg-white/[0.02]",
+                    "animate-in",
+                    isHighlighted && "border-red-500/30 shadow-[0_0_60px_rgba(225,29,72,0.1)] scale-[1.03]"
+                  )}
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  {isHighlighted && (
+                    <div className="absolute -top-3 left-0 right-0 mx-auto w-fit">
+                      <Badge className="bg-red-600 hover:bg-red-600 border-0 shadow-lg shadow-red-500/20">
+                        Mais Popular
+                      </Badge>
+                    </div>
+                  )}
+                  <CardHeader className="text-center pb-2">
+                    <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
+                    <div className="mt-4">
+                      <span className="text-5xl font-bold tracking-tight">
+                        {plan.price_cents > 0
+                          ? `R$ ${(plan.price_cents / 100).toFixed(2).replace(".", ",")}`
+                          : "R$ 0"}
+                      </span>
+                      {plan.price_cents > 0 && <span className="text-muted-foreground ml-1 text-sm">/mes</span>}
+                    </div>
+                    <CardDescription className="mt-2 text-sm">{plan.description || "Ideal para comecar"}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1 pt-4">
+                    <ul className="space-y-3">
+                      {featuresList.map((feature: any) => {
+                        const text = typeof feature === "string" ? feature : feature.label ?? feature
+                        return (
+                          <li key={text} className="flex items-start gap-3 text-sm">
+                            <Check className={cn(
+                              "h-4 w-4 mt-0.5 shrink-0",
+                              isHighlighted ? "text-red-500" : "text-slate-500"
+                            )} />
+                            <span className="text-slate-400">{text}</span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      asChild
+                      variant={isHighlighted ? "default" : "outline"}
+                      className={cn(
+                        "w-full h-11",
+                        isHighlighted
+                          ? "bg-red-600 hover:bg-red-700 shadow-[0_0_30px_rgba(225,29,72,0.2)]"
+                          : "border-white/10 hover:bg-white/5 text-slate-300"
+                      )}
+                    >
+                      <Link href="/dashboard">
+                        {plan.price_cents > 0 ? `Assinar ${plan.name}` : "Comecar Gratis"}
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -266,23 +279,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* ================================================================ */}
-      {/* FOOTER */}
-      {/* ================================================================ */}
-      <footer className="border-t border-white/[0.05] py-10">
-        <div className="container mx-auto px-6 max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4 text-red-500" />
-            <span>&copy; {new Date().getFullYear()} ARX Store. Todos os direitos reservados.</span>
-          </div>
-          <div className="flex items-center gap-8">
-            <Link href="/dashboard/planos" className="hover:text-white transition-colors">Planos</Link>
-            <Link href="/termos" className="hover:text-white transition-colors">Termos</Link>
-            <Link href="/privacidade" className="hover:text-white transition-colors">Privacidade</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

@@ -38,7 +38,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-          <ShoppingBag className="h-6 w-6 text-[#5865F2]" />
+          <ShoppingBag className="h-6 w-6 text-red-500" />
           <span className="hidden sm:inline">ARX Store</span>
         </Link>
 
@@ -91,9 +91,9 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button size="sm" asChild className="bg-[#5865F2] hover:bg-[#4752C4]">
-              <Link href="/login">Entrar</Link>
-            </Button>
+              <Button size="sm" asChild className="bg-red-600 hover:bg-red-700">
+                <Link href="/login">Entrar</Link>
+              </Button>
           )}
         </div>
 
@@ -148,7 +148,7 @@ export function Navbar() {
                 </Button>
               </>
             ) : (
-              <Button className="bg-[#5865F2] hover:bg-[#4752C4]" asChild onClick={() => setMobileOpen(false)}>
+              <Button className="bg-red-600 hover:bg-red-700" asChild onClick={() => setMobileOpen(false)}>
                 <Link href="/login">Entrar</Link>
               </Button>
             )}

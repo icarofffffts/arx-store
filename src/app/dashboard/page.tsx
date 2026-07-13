@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, formatPlanLabel } from "@/lib/utils"
 import {
   Activity,
   Server,
@@ -99,12 +99,7 @@ export default async function DashboardPage() {
     }
   }
 
-  const planLabel =
-    userPlan === "enterprise"
-      ? "Enterprise"
-      : userPlan === "premium"
-        ? "Premium"
-        : "Free"
+  const planLabel = formatPlanLabel(userPlan)
 
   return (
     <div className="animate-in space-y-8">
@@ -218,8 +213,8 @@ export default async function DashboardPage() {
                 <Card key={bot.id} className="glass">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5865F2]/20">
-                        <Bot className="h-5 w-5 text-[#5865F2]" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+                        <Bot className="h-5 w-5 text-red-500" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -241,7 +236,7 @@ export default async function DashboardPage() {
                         <div className="mt-2">
                           <Link
                             href={`/dashboard/servidores`}
-                            className="text-xs text-[#5865F2] hover:underline inline-flex items-center gap-1"
+                            className="text-xs text-red-500 hover:underline inline-flex items-center gap-1"
                           >
                             <Settings className="h-3 w-3" />
                             Configurar

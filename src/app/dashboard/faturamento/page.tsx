@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { formatCurrency, formatDate } from "@/lib/utils"
+import { formatCurrency, formatDate, formatPlanLabel } from "@/lib/utils"
 import {
   CreditCard,
   Calendar,
@@ -44,6 +44,7 @@ export default async function BillingPage() {
   let subscriptionEnd: string | null = null
   let hasActiveSubscription = false
   let invoices: InvoiceRecord[] = []
+  let planPrice: number | null = 0
 
   if (discordId) {
     const { data: user } = await supabase
@@ -57,7 +58,7 @@ export default async function BillingPage() {
       const { data: sub } = await supabase
         .schema("store")
         .from("subscriptions")
-        .select("id, status, current_period_end, plans(slug)")
+        .select("id, status, current_period_end, plans(slug, price_cents)")
         .eq("user_id", user.id)
         .eq("status", "active")
         .maybeSingle()
@@ -68,6 +69,8 @@ export default async function BillingPage() {
         subscriptionStatus = (sub as any)?.status
         subscriptionEnd = (sub as any)?.current_period_end || null
         hasActiveSubscription = true
+        const priceCents = (sub as any)?.plans?.price_cents
+        planPrice = priceCents != null ? priceCents / 100 : null
       }
 
       const { data: invoiceData } = await supabase
@@ -82,12 +85,7 @@ export default async function BillingPage() {
     }
   }
 
-  const planLabel =
-    currentPlan === "enterprise"
-      ? "Enterprise"
-      : currentPlan === "premium"
-        ? "Premium"
-        : "Free"
+  const planLabel = formatPlanLabel(currentPlan)
 
   const statusVariant = (status: string) =>
     status === "approved" || status === "paid"
@@ -188,9 +186,9 @@ export default async function BillingPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">
-                {currentPlan === "free"
-                  ? "Gratuito"
-                  : formatCurrency(currentPlan === "premium" ? 29.9 : 79.9) + "/mês"}
+                {planPrice != null && planPrice > 0
+                  ? formatCurrency(planPrice) + "/mes"
+                  : "Gratuito"}
               </p>
             </div>
             {subscriptionEnd && (
