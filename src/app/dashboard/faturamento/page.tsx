@@ -1,5 +1,5 @@
 import { getAuthSession } from "@/lib/session"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/server"
 import {
   Card,
   CardContent,
@@ -36,7 +36,7 @@ export default async function BillingPage() {
 
   if (!session) return null
 
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const discordId = session.user.discordId
 
   let currentPlan = "free"
@@ -47,41 +47,45 @@ export default async function BillingPage() {
   let planPrice: number | null = 0
 
   if (discordId) {
-    const { data: user } = await supabase
-      .schema("store")
-      .from("users")
-      .select("id")
-      .eq("discord_id", discordId)
-      .maybeSingle()
-
-    if (user) {
-      const { data: sub } = await supabase
+    try {
+      const { data: user } = await supabase
         .schema("store")
-        .from("subscriptions")
-        .select("id, status, current_period_end, plans(slug, price_cents)")
-        .eq("user_id", user.id)
-        .eq("status", "active")
+        .from("users")
+        .select("id")
+        .eq("discord_id", discordId)
         .maybeSingle()
 
-      if (sub) {
-        const planSlug = (sub as any)?.plans?.slug
-        if (planSlug) currentPlan = planSlug
-        subscriptionStatus = (sub as any)?.status
-        subscriptionEnd = (sub as any)?.current_period_end || null
-        hasActiveSubscription = true
-        const priceCents = (sub as any)?.plans?.price_cents
-        planPrice = priceCents != null ? priceCents / 100 : null
+      if (user) {
+        const { data: sub } = await supabase
+          .schema("store")
+          .from("subscriptions")
+          .select("id, status, current_period_end, plans(slug, price_cents)")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .maybeSingle()
+
+        if (sub) {
+          const planSlug = (sub as any)?.plans?.slug
+          if (planSlug) currentPlan = planSlug
+          subscriptionStatus = (sub as any)?.status
+          subscriptionEnd = (sub as any)?.current_period_end || null
+          hasActiveSubscription = true
+          const priceCents = (sub as any)?.plans?.price_cents
+          planPrice = priceCents != null ? priceCents / 100 : null
+        }
+
+        const { data: invoiceData } = await supabase
+          .schema("store")
+          .from("invoices")
+          .select("id, created_at, amount_cents, status")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20)
+
+        invoices = (invoiceData || []) as InvoiceRecord[]
       }
-
-      const { data: invoiceData } = await supabase
-        .schema("store")
-        .from("invoices")
-        .select("id, created_at, amount_cents, status")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(20)
-
-      invoices = (invoiceData || []) as InvoiceRecord[]
+    } catch {
+      // gracefully handle query errors
     }
   }
 

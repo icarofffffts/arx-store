@@ -27,6 +27,7 @@ export const authOptions: NextAuthOptions = {
           global_name: string | null
         }
         token.discordId = dp.id
+        token.email = dp.email
         token.accessToken = account.access_token
 
         const avatarUrl = dp.avatar
