@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/session";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export async function GET() {
   const session = await getAuthSession();
@@ -13,7 +13,7 @@ export async function GET() {
     discordId?: string | null;
   };
 
-  const supabase = createClient();
+  const supabase = createAdminClient();
 
   let userQuery = supabase.schema("store").from("users").select("*");
   if (openId) {

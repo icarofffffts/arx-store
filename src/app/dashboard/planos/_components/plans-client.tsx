@@ -118,15 +118,18 @@ export function PlansClient({ plans, currentPlanSlug }: Props) {
                   {(typeof plan.features === "string"
                     ? JSON.parse(plan.features as string)
                     : plan.features
-                  ).map((feature: string) => (
+                  ).map((feature: any) => {
+                    const label = typeof feature === "string" ? feature : feature?.label ?? feature?.name ?? feature?.slug ?? ""
+                    return (
                     <li
-                      key={feature}
+                      key={typeof feature === "string" ? feature : feature?.slug ?? label}
                       className="flex items-start gap-2 text-sm"
                     >
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                      <span className="text-muted-foreground">{feature}</span>
+                      <span className="text-muted-foreground">{label}</span>
                     </li>
-                  ))}
+                    )
+                  })}
                 </ul>
               )}
             </CardContent>
