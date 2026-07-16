@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X, User, CreditCard, LogOut, ShoppingBag } from 'lucide-react'
 import { useAuth } from '@/components/providers/auth-context'
 import { Button } from '@/components/ui/button'
@@ -38,8 +39,15 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-          <ShoppingBag className="h-6 w-6 text-red-500" />
-          <span className="hidden sm:inline">ARX Store</span>
+          <Image 
+            src="/arx-logo.png" 
+            alt="ARX Logo" 
+            width={28} 
+            height={28} 
+            className="text-primary object-contain drop-shadow-[0_0_8px_rgba(225,29,72,0.4)]"
+            priority
+          />
+          <span className="hidden sm:inline font-heading"><span className="text-primary">ARX</span> Store</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
