@@ -4,47 +4,60 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 346 84% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 9%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 0 0% 9%;
-    --accent-foreground: 0 0% 98%;
+    /* Deep Space Base (Romer-inspired) */
+    --background: 240 7% 4%;     /* #070708 */
+    --foreground: 210 10% 95%;   /* #F0F1F2 */
+    
+    /* Containers */
+    --card: 210 6% 7%;           /* #101112 */
+    --card-foreground: 210 10% 95%;
+    --popover: 210 6% 7%;
+    --popover-foreground: 210 10% 95%;
+    
+    /* ARX Red Primary */
+    --primary: 346 84% 50%;      /* #E11D48 */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Subtle Panels */
+    --secondary: 220 5% 10%;     /* #151617 */
+    --secondary-foreground: 210 10% 95%;
+    --muted: 220 5% 10%;
+    --muted-foreground: 218 6% 62%;
+    
+    --accent: 220 5% 10%;
+    --accent-foreground: 210 10% 95%;
+    
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
+    --destructive-foreground: 210 10% 95%;
+    
+    /* Borders & Outlines - Low Contrast Precision */
+    --border: 220 5% 15%;        /* #232426 */
+    --input: 220 5% 11%;         /* #1B1C1E */
     --ring: 346 84% 50%;
-    --radius: 0.5rem;
+    
+    --radius: 0.25rem;           /* Tighter 4px radius */
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
+    /* Exact same for forced dark mode */
+    --background: 240 7% 4%;
+    --foreground: 210 10% 95%;
+    --card: 210 6% 7%;
+    --card-foreground: 210 10% 95%;
+    --popover: 210 6% 7%;
+    --popover-foreground: 210 10% 95%;
     --primary: 346 84% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 9%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 0 0% 9%;
-    --accent-foreground: 0 0% 98%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 5% 10%;
+    --secondary-foreground: 210 10% 95%;
+    --muted: 220 5% 10%;
+    --muted-foreground: 218 6% 62%;
+    --accent: 220 5% 10%;
+    --accent-foreground: 210 10% 95%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
+    --destructive-foreground: 210 10% 95%;
+    --border: 220 5% 15%;
+    --input: 220 5% 11%;
     --ring: 346 84% 50%;
   }
 }
@@ -59,8 +72,12 @@
   }
 
   body {
-    @apply bg-black text-foreground antialiased selection:bg-primary/30;
+    @apply bg-background text-foreground antialiased selection:bg-primary/30;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
   }
 
   ::-webkit-scrollbar {
@@ -85,7 +102,7 @@
   }
 
   .glass {
-    @apply bg-black/40 backdrop-blur-xl border border-white/[0.05];
+    @apply bg-surface-container/60 backdrop-blur-xl border border-outline-variant;
   }
 }
 

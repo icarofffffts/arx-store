@@ -50,6 +50,21 @@ const config: Config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+        
+        // Deep Space System
+        surface: '#070708',
+        'surface-dim': '#070708',
+        'surface-bright': '#232426',
+        'surface-container-lowest': '#050506',
+        'surface-container-low': '#0e0f10',
+        'surface-container': '#101112',
+        'surface-container-high': '#151617',
+        'surface-container-highest': '#191A1C',
+        'on-surface': '#F0F1F2',
+        'on-surface-variant': '#9A9DA3',  
+        outline: '#232426',
+        'outline-variant': '#1B1C1E',
+
         danger: {
           50: '#fff1f2',
           100: '#ffe4e6',
@@ -59,23 +74,19 @@ const config: Config = {
           700: '#b91c1c',
           900: '#7f1d1d',
         },
-        warning: {
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-        },
         discord: {
           DEFAULT: '#5865F2',
           dark: '#4752C4',
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: '0.5rem',
+        md: '0.25rem',
+        sm: '0.125rem',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-manrope)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       animation: {

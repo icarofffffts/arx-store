@@ -52,18 +52,22 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden selection:bg-primary/30">
       <Sidebar userPlan={userPlan} />
-      <main className="flex-1 overflow-y-auto">
-        <div className="flex items-center justify-end p-4 border-b border-border">
+      <main className="flex-1 flex flex-col min-w-0 bg-surface">
+        <header className="flex h-16 shrink-0 items-center justify-end px-8 border-b border-outline-variant bg-surface-container-lowest/50 backdrop-blur-md sticky top-0 z-10 w-full">
           <UserInfo
             name={session.user.name || "Usuário"}
             email={session.user.email || ""}
             image={session.user.image}
             plan={userPlan}
           />
+        </header>
+        <div className="flex-1 p-8 overflow-y-auto">
+          <div className="mx-auto max-w-6xl">
+            {children}
+          </div>
         </div>
-        <div className="p-6">{children}</div>
       </main>
     </div>
   )

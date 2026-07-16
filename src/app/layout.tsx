@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
-import { Inter } from 'next/font/google'
+import { Inter, Manrope } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' })
 
 const SessionProvider = dynamic(
   () => import('@/components/providers/session-provider').then(m => ({ default: m.SessionProvider })),
@@ -30,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning className="dark">
-      <body className={`${inter.variable} font-sans bg-black text-white antialiased`}>
+      <body className={`${inter.variable} ${manrope.variable} font-sans bg-background text-foreground antialiased`}>
         <SessionProvider>
           <Navbar />
           <main className="min-h-screen">{children}</main>
