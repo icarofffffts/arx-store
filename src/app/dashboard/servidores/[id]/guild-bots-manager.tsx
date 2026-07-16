@@ -103,39 +103,51 @@ export function GuildBotsManager({ guildId, guildName, bots }: Props) {
                     <p className="text-xs text-muted-foreground">
                       {bot.description}
                     </p>
-                    <Badge variant="outline" className="mt-1 text-xs">
+                    <Badge variant="outline" className="mt-1 text-xs border-outline-variant text-muted-foreground">
                       {bot.category}
                     </Badge>
                   </div>
                 </div>
-                <div>
+                <div className="flex flex-col gap-2">
                   {bot.isActive ? (
                     <Button
                       size="sm"
                       variant="destructive"
+                      className="w-full bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500/30 font-medium"
                       onClick={() => deactivateBot(bot.guildBotId!, bot.slug)}
                       disabled={loading === bot.slug}
                     >
                       {loading === bot.slug ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
                       ) : (
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 mr-1" />
                       )}
-                      <span className="ml-1">Desativar</span>
+                      <span>Desativar</span>
                     </Button>
                   ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => activateBot(bot.slug, bot.name)}
-                      disabled={loading === bot.slug}
-                    >
-                      {loading === bot.slug ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Check className="h-4 w-4" />
-                      )}
-                      <span className="ml-1">Ativar</span>
-                    </Button>
+                    bot.slug === "custom_bot" ? (
+                      <Button
+                        size="sm"
+                        className="w-full bg-surface-bright border border-outline-variant hover:bg-surface-container-highest text-primary"
+                        onClick={() => window.open(`https://discord.com/oauth2/authorize?client_id=1525933799379308554`, "_blank")}
+                      >
+                        <span>Adicionar Bot T.I</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="w-full bg-primary text-white hover:bg-primary/90 shadow-[0_0_15px_rgba(225,29,72,0.3)] transition-all"
+                        onClick={() => activateBot(bot.slug, bot.name)}
+                        disabled={loading === bot.slug}
+                      >
+                        {loading === bot.slug ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                        ) : (
+                          <Check className="h-4 w-4 mr-1" />
+                        )}
+                        <span>Confirmar Instalação</span>
+                      </Button>
+                    )
                   )}
                 </div>
               </div>

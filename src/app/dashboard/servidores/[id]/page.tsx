@@ -94,23 +94,28 @@ export default async function GuildBotsPage({
         }
       }
 
-      const { data: settings } = await supabase
-        .schema("store")
-        .from("settings")
-        .select("value")
-        .eq("key", "default_bots")
-        .maybeSingle()
-
-      const availableBots: Array<{
-        slug: string
-        name: string
-        description: string
-        category: string
-      }> = settings?.value
-        ? typeof settings.value === "string"
-          ? JSON.parse(settings.value)
-          : settings.value
-        : []
+      // Hardcoded available bots since we no longer rely on settings.default_bots JSON
+      // Customers manage sales of 'promisse-tickets', 'vendas-ghost-studio', 'custom_bot'
+      const availableBots = [
+        {
+          slug: "promisse-tickets",
+          name: "Ticket Premium",
+          description: "Sistema completo de tickets com pagamento integrado.",
+          category: "Vendas"
+        },
+        {
+          slug: "vendas-ghost-studio",
+          name: "E-Commerce",
+          description: "Painel de vendas, carrinho, produtos e automações de entrega.",
+          category: "Vendas"
+        },
+        {
+          slug: "custom_bot",
+          name: "Bot Personalizado",
+          description: "Abra um ticket com a equipe de desenvolvimento para criar um bot sob medida.",
+          category: "Desenvolvimento"
+        }
+      ];
 
       for (const bot of availableBots) {
         const isActive = activeBotsMap.has(bot.slug)

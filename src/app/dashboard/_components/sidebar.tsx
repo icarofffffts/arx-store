@@ -16,6 +16,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
+import Image from "next/image"
+
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/servidores", label: "Servidores", icon: Server },
@@ -35,8 +37,15 @@ export function Sidebar({ userPlan }: SidebarProps) {
   return (
     <aside className="flex w-64 flex-col border-r border-outline-variant bg-surface-container-lowest">
       <div className="flex h-16 items-center gap-2 px-6 border-b border-outline-variant">
-        <div className="w-8 h-8 rounded bg-primary/10 border border-primary/20 flex items-center justify-center">
-          <Bot className="h-4 w-4 text-primary" />
+        <div className="flex items-center justify-center">
+          <Image 
+            src="/arx-logo.png" 
+            alt="ARX Logo" 
+            width={32} 
+            height={32} 
+            className="object-contain drop-shadow-[0_0_8px_rgba(225,29,72,0.4)]"
+            priority
+          />
         </div>
         <span className="text-lg font-heading font-medium tracking-tight text-on-surface">
           <span className="text-primary font-bold">ARX</span> Store
