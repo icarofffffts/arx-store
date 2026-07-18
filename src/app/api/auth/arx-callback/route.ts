@@ -92,17 +92,16 @@ export async function GET(request: Request) {
     new URL(state || "/dashboard", siteUrl)
   );
 
-  const cookieData = buildArxSessionCookie(token, 86400);
-  const [cookieName, ...rest] = cookieData.split("=");
-  const cookieValue = rest.join("=");
-  const attrs = cookieValue.split(";").slice(1).join(";").trim();
-  response.cookies.set(cookieName, cookieValue.split(";")[0], {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 86400,
-    path: "/",
-  });
+  const match = buildArxSessionCookie(token, 86400).match(/^([^=]+)=(.*?);/);
+  if (match) {
+    response.cookies.set("arx_token", match[2], {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 86400,
+      path: "/",
+    });
+  }
 
   return response;
 }

@@ -78,6 +78,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing plan_slug" }, { status: 400 });
     }
 
+    if (!session.user.email) {
+      return NextResponse.json(
+        { error: "Email required for subscription. Please reconnect your account with email scope." },
+        { status: 400 }
+      );
+    }
+
     const { openId, discordId } = session.user as {
       openId?: string | null;
       discordId?: string | null;

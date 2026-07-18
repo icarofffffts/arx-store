@@ -129,7 +129,7 @@ export function GuildBotsManager({ guildId, guildName, bots }: Props) {
                       <Button
                         size="sm"
                         className="w-full bg-surface-bright border border-outline-variant hover:bg-surface-container-highest text-primary"
-                        onClick={() => window.open(`https://discord.com/oauth2/authorize?client_id=1525933799379308554`, "_blank")}
+                        onClick={() => window.open(`https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID}`, "_blank", "noopener,noreferrer")}
                       >
                         <span>Adicionar Bot T.I</span>
                       </Button>

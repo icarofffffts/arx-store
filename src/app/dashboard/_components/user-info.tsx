@@ -1,7 +1,5 @@
 "use client"
 
-"use client"
-
 import { useAuth } from "@/components/providers/auth-context"
 import { formatPlanLabel } from "@/lib/utils"
 import { LogOut } from "lucide-react"

@@ -34,7 +34,10 @@ export async function POST(request: Request) {
     const rawBody = await request.text();
 
     const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-    if (webhookSecret && !verifyMercadoPagoSignature(rawBody, signature, webhookSecret)) {
+    if (!webhookSecret) {
+      return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+    }
+    if (!verifyMercadoPagoSignature(rawBody, signature, webhookSecret)) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 

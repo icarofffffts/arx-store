@@ -128,22 +128,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Guild not found" }, { status: 404 });
     }
 
-    const { data: existingBot } = await supabase
-      .schema("store")
-      .from("guild_bots")
-      .select("id")
-      .eq("guild_id", guild.id)
-      .eq("bot_slug", validBotSlug)
-      .eq("status", "active")
-      .maybeSingle();
-
-    if (existingBot) {
-      return NextResponse.json(
-        { error: "Bot already active on this guild" },
-        { status: 409 }
-      );
-    }
-
     const { data: guildBot, error: insertError } = await supabase
       .schema("store")
       .from("guild_bots")
