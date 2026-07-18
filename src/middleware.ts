@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const ARX_JWT_SECRET = new TextEncoder().encode(
-  process.env.ARX_JWT_SECRET || "super_secret_arx_auth_key_2026"
-);
+if (!process.env.ARX_JWT_SECRET) {
+  if (process.env.NODE_ENV === "development") {
+    throw new Error("ARX_JWT_SECRET environment variable is not set");
+  }
+}
+const ARX_JWT_SECRET = new TextEncoder().encode(process.env.ARX_JWT_SECRET);
 
 const protectedPaths = ["/dashboard"];
 

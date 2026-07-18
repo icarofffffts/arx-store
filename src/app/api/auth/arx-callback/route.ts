@@ -84,8 +84,8 @@ export async function GET(request: Request) {
     } else {
       await supabase.schema("store").from("users").insert(userData);
     }
-  } catch {
-    // non-critical: proceed with redirect even if sync fails
+  } catch (err) {
+    console.error("[arx-callback] User sync failed:", err);
   }
 
   const response = NextResponse.redirect(

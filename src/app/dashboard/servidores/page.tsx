@@ -46,8 +46,12 @@ export default async function ServersPage() {
               g.owner || (BigInt(g.permissions) & BigInt(0x20)) === BigInt(0x20)
           )
         )
+      } else if (res.status === 401) {
+        console.error("[servidores] Discord token expired or revoked");
       }
-    } catch {}
+    } catch (err) {
+      console.error("[servidores] Failed to fetch Discord guilds:", err);
+    }
   }
 
   const guildIds = guilds.map((g) => g.id)
@@ -90,7 +94,9 @@ export default async function ServersPage() {
           }
         }
       }
-    } catch {}
+    } catch (err) {
+        console.error("[servidores] Failed to fetch guild data:", err);
+      }
   }
 
   const inviteUrl = DISCORD_CLIENT_ID

@@ -3,7 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
+  const secret = request.headers.get('x-internal-secret');
+  if (secret !== process.env.INTERNAL_API_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const results: Record<string, string> = {
     app: 'ok',
   }
