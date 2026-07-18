@@ -1,9 +1,9 @@
 import Link from "next/link"
-import { Shield, Bot, Headphones, Wallet, Zap, Server, Check, ArrowRight, ShoppingBag, LayoutGrid } from "lucide-react"
+import Image from "next/image"
+import { Shield, Headphones, Wallet, Zap, Server, Check, ArrowRight, ShoppingBag, LayoutGrid, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/server"
 
 export const dynamic = 'force-dynamic'
@@ -25,6 +25,12 @@ const features = [
 
 export default async function LandingPage() {
   const supabase = createClient()
+
+  const navLinks = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/dashboard/planos", label: "Planos" },
+    { href: "/dashboard/deployments", label: "Deployments" },
+  ]
 
   let activeBots = 0
   let activeGuilds = 0
@@ -66,9 +72,51 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden font-sans">
 
       {/* ================================================================ */}
+      {/* NAVBAR */}
+      {/* ================================================================ */}
+      <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface-container-lowest/80 backdrop-blur-xl">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/arx-logo.png"
+                alt="ARX Logo"
+                width={28}
+                height={28}
+                className="object-contain drop-shadow-[0_0_8px_rgba(225,29,72,0.4)]"
+              />
+              <span className="text-lg font-heading font-medium tracking-tight text-on-surface">
+                <span className="text-primary font-bold">ARX</span> Store
+              </span>
+            </div>
+
+            <nav className="hidden md:flex items-center gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="px-4 py-2 text-[14px] font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-all"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-3">
+              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-5 rounded-md text-[13px] font-medium shadow-[0_0_30px_rgba(225,29,72,0.15)]">
+                <Link href="/dashboard">
+                  Começar
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ================================================================ */}
       {/* HERO: Cinematic Precision */}
       {/* ================================================================ */}
-      <section className="relative pt-32 md:pt-48 pb-24 md:pb-32 border-b border-outline-variant overflow-hidden">
+      <section className="relative pt-24 md:pt-36 pb-24 md:pb-32 border-b border-outline-variant overflow-hidden">
         {/* Deep Space Background Layer */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-surface dot-grid opacity-[0.4]" />
@@ -82,7 +130,13 @@ export default async function LandingPage() {
               <div className="flex justify-center mb-10">
                 <div className="w-16 h-16 rounded-xl bg-surface-container border border-outline-variant flex items-center justify-center shadow-2xl relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-transparent opacity-50" />
-                  <Bot className="h-7 w-7 text-primary relative z-10" />
+                  <Image
+                    src="/arx-logo.png"
+                    alt="ARX Logo"
+                    width={36}
+                    height={36}
+                    className="object-contain relative z-10"
+                  />
                 </div>
               </div>
               <div className="flex justify-center mb-6">
@@ -190,9 +244,12 @@ export default async function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-center">
             {plans.map((plan: any, i: number) => {
-              const featuresList = typeof plan.features === "string"
-                ? JSON.parse(plan.features as string)
-                : (plan.features ?? [])
+              const featuresList = (() => {
+                if (typeof plan.features === "string") {
+                  try { return JSON.parse(plan.features as string); } catch { return []; }
+                }
+                return plan.features ?? [];
+              })()
               const isHighlighted = plan.slug === "premium"
 
               return (

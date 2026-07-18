@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/session";
 import { createAdminClient } from "@/lib/supabase/server";
 
+export const dynamic = 'force-dynamic';
+
 async function resolveUser(
   supabase: ReturnType<typeof createAdminClient>,
   openId?: string | null,
@@ -13,7 +15,7 @@ async function resolveUser(
   if (discordId) {
     return supabase.schema("store").from("users").select("id").eq("discord_id", discordId).maybeSingle();
   }
-  return { data: null };
+  return { data: null, error: null };
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -52,7 +54,10 @@ export async function GET() {
   }
 
   const enriched = (orders ?? []).map((order: any) => {
-    const meta = typeof order.metadata === "string" ? JSON.parse(order.metadata) : (order.metadata ?? {});
+    let meta: Record<string, unknown> = {};
+    if (typeof order.metadata === "string") {
+      try { meta = JSON.parse(order.metadata); } catch { meta = {}; }
+    } else { meta = (order.metadata ?? {}) as Record<string, unknown>; }
     return {
       id: order.id,
       bot_slug: order.bot_slug,

@@ -35,11 +35,21 @@ export default async function DeploymentsPage() {
 
   const supabase = createAdminClient()
 
-  const { data: guilds } = await supabase
+  // Resolve discordId → user.id (UUID) before querying guilds
+  const { data: user } = await supabase
     .schema("store")
-    .from("guilds")
-    .select("id, guild_id, name")
-    .eq("owner_user_id", session.user.discordId!)
+    .from("users")
+    .select("id")
+    .eq("discord_id", session.user.discordId!)
+    .maybeSingle()
+
+  const { data: guilds } = user
+    ? await supabase
+        .schema("store")
+        .from("guilds")
+        .select("id, guild_id, name")
+        .eq("owner_user_id", user.id)
+    : { data: [] }
 
   const guildIds = (guilds || []).map((g: any) => g.id)
 

@@ -65,12 +65,12 @@ export default async function DashboardPage() {
       const { data: sub } = await supabase
         .schema("store")
         .from("subscriptions")
-        .select("id, status, plans(slug)")
+        .select("id, status, plan:plan_id(slug)")
         .eq("user_id", user.id)
         .eq("status", "active")
         .maybeSingle()
 
-      const planSlug = (sub as any)?.plans?.slug
+      const planSlug = (sub as any)?.plan?.slug
       if (planSlug) {
         userPlan = planSlug
         subscriptionStatus = (sub as any)?.status || null

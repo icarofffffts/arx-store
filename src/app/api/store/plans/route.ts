@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { cacheGet, cacheSet } from "@/lib/cache";
 
+export const dynamic = 'force-dynamic';
+
 const CACHE_KEY = "plans:active";
 const CACHE_TTL = 120;
 

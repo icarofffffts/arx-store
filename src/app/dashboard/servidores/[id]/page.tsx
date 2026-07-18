@@ -74,22 +74,41 @@ export default async function GuildBotsPage({
   if (discordId) {
     const supabase = createClient()
 
-    const { data: result } = await supabase
+    // Step 1: resolve user.id from discordId
+    const { data: user } = await supabase
       .schema("store")
       .from("users")
-      .select("id, guilds!inner(id), subscriptions!inner(id, status)")
+      .select("id")
       .eq("discord_id", discordId)
-      .eq("subscriptions.status", "active")
-      .eq("guilds.guild_id", guildId)
-      .eq("guilds.owner_user_id", "users.id")
       .maybeSingle()
 
-    const userId = result?.id
-    const subId = (result as any)?.subscriptions?.id
+    if (!user) return null
+
+    // Step 2: verify user owns this guild
+    const { data: guild } = await supabase
+      .schema("store")
+      .from("guilds")
+      .select("id")
+      .eq("guild_id", guildId)
+      .eq("owner_user_id", user.id)
+      .maybeSingle()
+
+    if (!guild) return null
+
+    // Step 3: fetch active subscription
+    const { data: sub } = await supabase
+      .schema("store")
+      .from("subscriptions")
+      .select("id, status")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle()
+
+    const subId = (sub as any)?.id
 
     let activeBotsMap = new Map<string, string>()
 
-    if (userId && subId) {
+    if (subId) {
       const { data: activeBots } = await supabase
         .schema("store")
         .from("guild_bots")

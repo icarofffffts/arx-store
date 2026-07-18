@@ -42,12 +42,12 @@ export default async function DashboardLayout({
       const { data: sub } = await supabase
         .schema("store")
         .from("subscriptions")
-        .select("plans(slug)")
+        .select("plan:plan_id(slug)")
         .eq("user_id", user.id)
         .eq("status", "active")
         .maybeSingle()
 
-      const planSlug = (sub as any)?.plans?.slug
+      const planSlug = (sub as any)?.plan?.slug
       if (planSlug) userPlan = planSlug
     }
   }

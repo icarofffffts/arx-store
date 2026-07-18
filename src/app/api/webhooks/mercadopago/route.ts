@@ -20,6 +20,7 @@ function verifyMercadoPagoSignature(
     .createHmac("sha256", secret)
     .update(`${ts}.${rawBody}`)
     .digest("hex");
+  if (Buffer.from(v1).length !== Buffer.from(expected).length) return false;
   return (
     ts.length > 0 &&
     v1.length > 0 &&

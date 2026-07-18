@@ -59,18 +59,18 @@ export default async function BillingPage() {
         const { data: sub } = await supabase
           .schema("store")
           .from("subscriptions")
-          .select("id, status, current_period_end, plans(slug, price_cents)")
+          .select("id, status, current_period_end, plan:plan_id(slug, price_cents)")
           .eq("user_id", user.id)
           .eq("status", "active")
           .maybeSingle()
 
         if (sub) {
-          const planSlug = (sub as any)?.plans?.slug
+          const planSlug = (sub as any)?.plan?.slug
           if (planSlug) currentPlan = planSlug
           subscriptionStatus = (sub as any)?.status
           subscriptionEnd = (sub as any)?.current_period_end || null
           hasActiveSubscription = true
-          const priceCents = (sub as any)?.plans?.price_cents
+          const priceCents = (sub as any)?.plan?.price_cents
           planPrice = priceCents != null ? priceCents / 100 : null
         }
 

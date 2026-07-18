@@ -37,8 +37,8 @@ export async function GET() {
     discordId?: string | null;
   };
 
-  const supabase = createClient();
-  const { data: user } = await resolveUser(supabase as any, openId, discordId);
+  const supabase = createAdminClient();
+  const { data: user } = await resolveUser(supabase, openId, discordId);
 
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
