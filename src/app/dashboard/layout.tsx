@@ -2,6 +2,7 @@ import { getAuthSession } from "@/lib/session"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Sidebar } from "./_components/sidebar"
+import { MobileNav } from "./_components/mobile-nav"
 import { UserInfo } from "./_components/user-info"
 
 export const dynamic = 'force-dynamic'
@@ -54,8 +55,14 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen bg-background overflow-hidden selection:bg-primary/30">
       <Sidebar userPlan={userPlan} />
+      <MobileNav
+        userPlan={userPlan}
+        userImage={session.user.image}
+        userName={session.user.name || "Usuário"}
+      />
       <main className="flex-1 flex flex-col min-w-0 bg-surface">
-        <header className="flex h-16 shrink-0 items-center justify-end px-8 border-b border-outline-variant bg-surface-container-lowest/50 backdrop-blur-md sticky top-0 z-10 w-full">
+        <header className="flex h-16 shrink-0 items-center justify-end px-4 sm:px-8 border-b border-outline-variant bg-surface-container-lowest/50 backdrop-blur-md sticky top-0 z-10 w-full">
+          <div className="lg:hidden w-10" />
           <UserInfo
             name={session.user.name || "Usuário"}
             email={session.user.email || ""}
@@ -63,7 +70,7 @@ export default async function DashboardLayout({
             plan={userPlan}
           />
         </header>
-        <div className="flex-1 p-8 overflow-y-auto">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           <div className="mx-auto max-w-6xl">
             {children}
           </div>
