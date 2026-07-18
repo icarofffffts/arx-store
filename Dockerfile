@@ -30,6 +30,9 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_SITE_NAME
 ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
 
+ARG INTERNAL_API_SECRET
+ENV INTERNAL_API_SECRET=$INTERNAL_API_SECRET
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
@@ -53,11 +56,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
+ARG INTERNAL_API_SECRET
+ENV INTERNAL_API_SECRET=$INTERNAL_API_SECRET
+
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health',(r)=>{process.exit(r.statusCode===200?0:1)})"
+  CMD node -e "const h={'x-internal-secret':'"$INTERNAL_API_SECRET"'};require('http').request({hostname:'localhost',port:3000,path:'/api/health',headers:h},(r)=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"
 
 CMD ["node", "server.js"]
