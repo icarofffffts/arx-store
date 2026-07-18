@@ -9,6 +9,8 @@ import {
   Receipt,
   Settings,
   Bot,
+  Rocket,
+  BarChart3,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatPlanLabel } from "@/lib/utils"
@@ -22,6 +24,8 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/servidores", label: "Servidores", icon: Server },
   { href: "/dashboard/planos", label: "Planos", icon: Crown },
+  { href: "/dashboard/deployments", label: "Deployments", icon: Rocket },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/faturamento", label: "Faturamento", icon: Receipt },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ]
