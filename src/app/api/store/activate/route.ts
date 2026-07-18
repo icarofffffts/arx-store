@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/session";
 import { createAdminClient } from "@/lib/supabase/server";
+import { validateId, sanitizeConfig, isSlug } from "@/lib/validation";
 
 async function resolveUser(
   supabase: ReturnType<typeof createAdminClient>,
@@ -36,12 +37,17 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { guild_id, bot_slug, config } = body;
 
-    if (!guild_id || !bot_slug) {
+    const validGuildId = validateId(guild_id, 'discord');
+    const validBotSlug = typeof bot_slug === 'string' && isSlug(bot_slug) ? bot_slug : null;
+
+    if (!validGuildId || !validBotSlug) {
       return NextResponse.json(
-        { error: "Missing guild_id or bot_slug" },
+        { error: "Invalid guild_id or bot_slug format" },
         { status: 400 }
       );
     }
+
+    const safeConfig = config ? sanitizeConfig(config) : null;
 
     const { openId, discordId } = session.user as {
       openId?: string | null;
@@ -103,7 +109,7 @@ export async function POST(request: Request) {
     }
 
     const features = plan.features as Array<{ slug: string }> | null;
-    if (features && !features.find((f) => f.slug === bot_slug)) {
+    if (features && !features.find((f) => f.slug === validBotSlug)) {
       return NextResponse.json(
         { error: "Bot not available in your plan" },
         { status: 403 }
@@ -114,7 +120,7 @@ export async function POST(request: Request) {
       .schema("store")
       .from("guilds")
       .select("id")
-      .eq("guild_id", guild_id)
+      .eq("guild_id", validGuildId)
       .eq("owner_user_id", user.id)
       .maybeSingle();
 
@@ -127,7 +133,7 @@ export async function POST(request: Request) {
       .from("guild_bots")
       .select("id")
       .eq("guild_id", guild.id)
-      .eq("bot_slug", bot_slug)
+      .eq("bot_slug", validBotSlug)
       .eq("status", "active")
       .maybeSingle();
 
@@ -144,8 +150,8 @@ export async function POST(request: Request) {
       .insert({
         guild_id: guild.id,
         subscription_id: subscription.id,
-        bot_slug,
-        config: config || {},
+        bot_slug: validBotSlug,
+        config: safeConfig ?? {},
         status: "active",
       })
       .select()
@@ -158,12 +164,12 @@ export async function POST(request: Request) {
           .from("guild_bots")
           .update({
             status: "active",
-            config: config || {},
+            config: safeConfig ?? {},
             subscription_id: subscription.id,
             updated_at: new Date().toISOString(),
           })
           .eq("guild_id", guild.id)
-          .eq("bot_slug", bot_slug)
+          .eq("bot_slug", validBotSlug)
           .select()
           .single();
 
@@ -175,7 +181,7 @@ export async function POST(request: Request) {
             guild_id: guild.id,
             subscription_id: subscription.id,
             user_id: user.id,
-            bot_slug,
+            bot_slug: validBotSlug,
             action: "activate",
           });
 
@@ -192,7 +198,7 @@ export async function POST(request: Request) {
         guild_id: guild.id,
         subscription_id: subscription.id,
         user_id: user.id,
-        bot_slug,
+        bot_slug: validBotSlug,
         action: "activate",
       });
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/session";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { validateId, sanitizeText } from "@/lib/validation";
 
 async function resolveUser(
   supabase: ReturnType<typeof createAdminClient>,
@@ -71,9 +72,21 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, description, requirements, guild_id } = body;
 
-    if (!name || !description) {
+    const safeName = sanitizeText(name, 100);
+    const safeDesc = sanitizeText(description, 1000);
+    const safeReqs = requirements ? sanitizeText(requirements, 2000) : null;
+    const safeGuildId = guild_id ? validateId(guild_id, 'discord') : null;
+
+    if (!safeName || !safeDesc) {
       return NextResponse.json(
         { error: "Missing required fields: name, description" },
+        { status: 400 }
+      );
+    }
+
+    if (guild_id && !safeGuildId) {
+      return NextResponse.json(
+        { error: "Invalid guild_id format" },
         { status: 400 }
       );
     }
@@ -95,9 +108,9 @@ export async function POST(request: Request) {
       .from("custom_bot_orders")
       .insert({
         user_id: user.id,
-        name,
-        description,
-        requirements: requirements || null,
+        name: safeName,
+        description: safeDesc,
+        requirements: safeReqs,
         status: "briefing",
       })
       .select()

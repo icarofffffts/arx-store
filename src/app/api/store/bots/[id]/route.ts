@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/session";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { validateId, sanitizeConfig } from "@/lib/validation";
 
 async function resolveUser(
   supabase: ReturnType<typeof createAdminClient>,
@@ -35,6 +36,11 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const botId = validateId(params.id, 'uuid');
+  if (!botId) {
+    return NextResponse.json({ error: "Invalid bot ID format" }, { status: 400 });
+  }
+
   const supabase = createClient();
 
   const { data: guildBot, error } = await supabase
@@ -60,12 +66,22 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const botId = validateId(params.id, 'uuid');
+  if (!botId) {
+    return NextResponse.json({ error: "Invalid bot ID format" }, { status: 400 });
+  }
+
   try {
     const body = await request.json();
     const { config } = body;
 
     if (!config) {
       return NextResponse.json({ error: "Missing config" }, { status: 400 });
+    }
+
+    const safeConfig = sanitizeConfig(config);
+    if (safeConfig === null) {
+      return NextResponse.json({ error: "Invalid config format" }, { status: 400 });
     }
 
     const { openId, discordId } = session.user as {
@@ -80,7 +96,7 @@ export async function PATCH(
       .schema("store")
       .from("guild_bots")
       .select("id, guild:guild_id(owner_user_id)")
-      .eq("id", params.id)
+      .eq("id", botId)
       .maybeSingle();
 
     if (!guildBot) {
@@ -98,8 +114,8 @@ export async function PATCH(
     const { data: updated, error } = await supabase
       .schema("store")
       .from("guild_bots")
-      .update({ config })
-      .eq("id", params.id)
+      .update({ config: safeConfig })
+      .eq("id", botId)
       .select()
       .single();
 
@@ -122,6 +138,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const botId = validateId(params.id, 'uuid');
+  if (!botId) {
+    return NextResponse.json({ error: "Invalid bot ID format" }, { status: 400 });
+  }
+
   try {
     const { openId, discordId } = session.user as {
       openId?: string | null;
@@ -135,7 +156,7 @@ export async function DELETE(
       .schema("store")
       .from("guild_bots")
       .select("id, bot_slug, guild_id, subscription_id, guild:guild_id(owner_user_id)")
-      .eq("id", params.id)
+      .eq("id", botId)
       .maybeSingle();
 
     if (!guildBot) {
@@ -154,7 +175,7 @@ export async function DELETE(
       .schema("store")
       .from("guild_bots")
       .update({ status: "inactive" })
-      .eq("id", params.id);
+      .eq("id", botId);
 
     await supabase
       .schema("store")
