@@ -1,19 +1,47 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import crypto from "crypto";
+
+function verifyMercadoPagoSignature(
+  rawBody: string,
+  signature: string | null,
+  secret: string
+): boolean {
+  if (!signature) return false;
+  const parts = Object.fromEntries(
+    signature.split(",").map((p) => {
+      const [k, v] = p.split("=");
+      return [k.trim(), v.trim()];
+    })
+  );
+  const ts = parts["t"] || "";
+  const v1 = parts["v1"] || "";
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(`${ts}.${rawBody}`)
+    .digest("hex");
+  return (
+    ts.length > 0 &&
+    v1.length > 0 &&
+    crypto.timingSafeEqual(Buffer.from(v1), Buffer.from(expected))
+  );
+}
 
 export async function POST(request: Request) {
   try {
     const signature = request.headers.get("x-signature");
     const rawBody = await request.text();
 
+    const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    if (webhookSecret && !verifyMercadoPagoSignature(rawBody, signature, webhookSecret)) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
     let parsedPayload: Record<string, unknown>;
     try {
       parsedPayload = JSON.parse(rawBody);
     } catch {
-      return NextResponse.json(
-        { error: "Invalid JSON payload" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
     }
 
     const supabase = createAdminClient();
@@ -36,74 +64,62 @@ export async function POST(request: Request) {
     if (!webhookLog) throw new Error("Failed to create webhook log");
 
     try {
-      const action = parsedPayload.action || parsedPayload.type;
+      const action = (parsedPayload.action as string) || (parsedPayload.type as string);
       const data = (parsedPayload.data || {}) as Record<string, unknown>;
 
       switch (action) {
         case "subscription_preapproval.authorized":
         case "subscription_authorized": {
           const preapprovalId = data.id || data.preapproval_id;
-          if (preapprovalId) {
+          if (preapprovalId && typeof preapprovalId === "string") {
             await supabase
               .schema("store")
               .from("subscriptions")
               .update({ status: "active" })
-              .eq("mp_preapproval_id", String(preapprovalId));
+              .eq("mp_preapproval_id", preapprovalId);
           }
           break;
         }
-
         case "subscription_preapproval.cancelled":
         case "subscription_cancelled": {
           const preapprovalId = data.id || data.preapproval_id;
-          if (preapprovalId) {
+          if (preapprovalId && typeof preapprovalId === "string") {
             await supabase
               .schema("store")
               .from("subscriptions")
-              .update({
-                status: "cancelled",
-                cancelled_at: new Date().toISOString(),
-              })
-              .eq("mp_preapproval_id", String(preapprovalId));
+              .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+              .eq("mp_preapproval_id", preapprovalId);
           }
           break;
         }
-
         case "subscription_preapproval.paused":
         case "subscription_paused": {
           const preapprovalId = data.id || data.preapproval_id;
-          if (preapprovalId) {
+          if (preapprovalId && typeof preapprovalId === "string") {
             await supabase
               .schema("store")
               .from("subscriptions")
               .update({ status: "paused" })
-              .eq("mp_preapproval_id", String(preapprovalId));
+              .eq("mp_preapproval_id", preapprovalId);
           }
           break;
         }
-
         case "payment.updated":
         case "payment": {
           const paymentId = data.id;
-          if (paymentId) {
+          if (paymentId && typeof paymentId === "string") {
+            const status = typeof data.status === "string" ? data.status : "approved";
             await supabase
               .schema("store")
               .from("invoices")
               .update({
-                status: String(data.status || "approved"),
-                paid_at:
-                  data.status === "approved"
-                    ? new Date().toISOString()
-                    : undefined,
+                status,
+                paid_at: status === "approved" ? new Date().toISOString() : null,
               })
-              .eq("mp_payment_id", String(paymentId));
+              .eq("mp_payment_id", paymentId);
           }
           break;
         }
-
-        case "merchant_order":
-          break;
-
         default:
           break;
       }
@@ -126,8 +142,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "Webhook processing failed";
+    const message = error instanceof Error ? error.message : "Webhook processing failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

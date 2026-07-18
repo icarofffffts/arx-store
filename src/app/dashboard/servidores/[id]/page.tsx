@@ -3,6 +3,27 @@ import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import { GuildBotsManager } from "./guild-bots-manager"
 
+const AVAILABLE_BOTS = [
+  {
+    slug: "promisse-tickets",
+    name: "Ticket Premium",
+    description: "Sistema completo de tickets com pagamento integrado.",
+    category: "Vendas"
+  },
+  {
+    slug: "vendas-ghost-studio",
+    name: "E-Commerce",
+    description: "Painel de vendas, carrinho, produtos e automacoes de entrega.",
+    category: "Vendas"
+  },
+  {
+    slug: "custom_bot",
+    name: "Bot Personalizado",
+    description: "Abra um ticket com a equipe de desenvolvimento para criar um bot sob medida.",
+    category: "Desenvolvimento"
+  }
+]
+
 export default async function GuildBotsPage({
   params,
 }: {
@@ -19,7 +40,7 @@ export default async function GuildBotsPage({
   if (!session) return null
 
   const guildId = params.id
-  const supabase = createClient()
+  const discordId = session.user.discordId
 
   let guildName = guildId
   let guildIcon: string | null = null
@@ -29,10 +50,10 @@ export default async function GuildBotsPage({
       const res = await fetch(
         `https://discord.com/api/v10/guilds/${guildId}`,
         {
-          headers: { Authorization: `Bearer ${session.user.accessToken}` },
-        }
+          headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+          next: { revalidate: 300 },
+        } as RequestInit
       )
-
       if (res.ok) {
         const guild = await res.json()
         guildName = guild.name || guildId
@@ -41,7 +62,6 @@ export default async function GuildBotsPage({
     } catch {}
   }
 
-  const discordId = session.user.discordId
   const bots: Array<{
     slug: string
     name: string
@@ -52,82 +72,47 @@ export default async function GuildBotsPage({
   }> = []
 
   if (discordId) {
-    const { data: user } = await supabase
+    const supabase = createClient()
+
+    const { data: result } = await supabase
       .schema("store")
       .from("users")
-      .select("id")
+      .select("id, guilds!inner(id), subscriptions!inner(id, status)")
       .eq("discord_id", discordId)
+      .eq("subscriptions.status", "active")
+      .eq("guilds.guild_id", guildId)
+      .eq("guilds.owner_user_id", "users.id")
       .maybeSingle()
 
-    if (user) {
-      const { data: sub } = await supabase
+    const userId = result?.id
+    const subId = (result as any)?.subscriptions?.id
+
+    let activeBotsMap = new Map<string, string>()
+
+    if (userId && subId) {
+      const { data: activeBots } = await supabase
         .schema("store")
-        .from("subscriptions")
-        .select("id, plans(slug, features)")
-        .eq("user_id", user.id)
+        .from("guild_bots")
+        .select("id, bot_slug")
+        .eq("subscription_id", subId)
         .eq("status", "active")
-        .maybeSingle()
+        .limit(50)
 
-      const planFeatures = (sub as any)?.plans?.features
-
-      const { data: dbGuild } = await supabase
-        .schema("store")
-        .from("guilds")
-        .select("id")
-        .eq("guild_id", guildId)
-        .eq("owner_user_id", user.id)
-        .maybeSingle()
-
-      let activeBotsMap = new Map<string, string>()
-
-      if (dbGuild && sub) {
-        const { data: activeBots } = await supabase
-          .schema("store")
-          .from("guild_bots")
-          .select("id, bot_slug")
-          .eq("guild_id", dbGuild.id)
-          .eq("subscription_id", sub.id)
-          .eq("status", "active")
-
-        for (const bot of activeBots || []) {
-          activeBotsMap.set(bot.bot_slug, bot.id)
-        }
+      for (const bot of activeBots || []) {
+        activeBotsMap.set(bot.bot_slug, bot.id)
       }
+    }
 
-      // Hardcoded available bots since we no longer rely on settings.default_bots JSON
-      // Customers manage sales of 'promisse-tickets', 'vendas-ghost-studio', 'custom_bot'
-      const availableBots = [
-        {
-          slug: "promisse-tickets",
-          name: "Ticket Premium",
-          description: "Sistema completo de tickets com pagamento integrado.",
-          category: "Vendas"
-        },
-        {
-          slug: "vendas-ghost-studio",
-          name: "E-Commerce",
-          description: "Painel de vendas, carrinho, produtos e automações de entrega.",
-          category: "Vendas"
-        },
-        {
-          slug: "custom_bot",
-          name: "Bot Personalizado",
-          description: "Abra um ticket com a equipe de desenvolvimento para criar um bot sob medida.",
-          category: "Desenvolvimento"
-        }
-      ];
-
-      for (const bot of availableBots) {
-        const isActive = activeBotsMap.has(bot.slug)
-        bots.push({
-          slug: bot.slug,
-          name: bot.name || bot.slug,
-          description: bot.description || "",
-          category: bot.category || "Geral",
-          isActive,
-          guildBotId: isActive ? activeBotsMap.get(bot.slug) : undefined,
-        })
-      }
+    for (const bot of AVAILABLE_BOTS) {
+      const isActive = activeBotsMap.has(bot.slug)
+      bots.push({
+        slug: bot.slug,
+        name: bot.name || bot.slug,
+        description: bot.description || "",
+        category: bot.category || "Geral",
+        isActive,
+        guildBotId: isActive ? activeBotsMap.get(bot.slug) : undefined,
+      })
     }
   }
 
