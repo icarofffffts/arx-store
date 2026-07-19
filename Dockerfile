@@ -53,16 +53,18 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-USER nextjs
-
 ARG INTERNAL_API_SECRET
 ENV INTERNAL_API_SECRET=$INTERNAL_API_SECRET
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+USER nextjs
 
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 HEALTHCHECK --interval=15s --timeout=10s --start-period=60s --retries=3 \
-  CMD node -e "const h={'x-internal-secret':'"$INTERNAL_API_SECRET"'};const e=()=>process.exit(1);const r=require('http').request({hostname:'localhost',port:3000,path:'/api/health',headers:h},(res)=>{process.exit(res.statusCode===200?0:1)});r.on('error',e);r.setTimeout(8000,()=>{r.destroy();e()})"
+  CMD curl -sf --max-time 8 -H "x-internal-secret: ${INTERNAL_API_SECRET}" http://localhost:3000/api/health || exit 1
 
 CMD ["node", "server.js"]
