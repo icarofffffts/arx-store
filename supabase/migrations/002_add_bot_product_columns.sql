@@ -24,9 +24,19 @@ ALTER TABLE store.custom_bot_orders
 CREATE INDEX IF NOT EXISTS idx_custom_bot_orders_user_source 
   ON store.custom_bot_orders(user_id, source, bot_slug);
 
--- Update RLS policy to allow website orders
-CREATE POLICY "custom_bot_orders_insert_website"
-  ON store.custom_bot_orders
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (source = 'website');
+-- Update RLS policy to allow website orders (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE policyname = 'custom_bot_orders_insert_website' 
+    AND tablename = 'custom_bot_orders'
+    AND schemaname = 'store'
+  ) THEN
+    CREATE POLICY "custom_bot_orders_insert_website"
+      ON store.custom_bot_orders
+      FOR INSERT
+      TO authenticated
+      WITH CHECK (source = 'website');
+  END IF;
+END $$;
