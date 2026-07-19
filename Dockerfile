@@ -5,7 +5,8 @@ FROM node:22-slim AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --frozen-lockfile=false
+RUN --mount=type=cache,target=/root/.npm \
+  npm ci --frozen-lockfile=false
 
 # ============================================================
 # Stage 2: Builder
@@ -35,7 +36,8 @@ ENV INTERNAL_API_SECRET=$INTERNAL_API_SECRET
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN npm run build
+RUN --mount=type=cache,target=/root/.npm \
+  npm run build
 
 # ============================================================
 # Stage 3: Runner
