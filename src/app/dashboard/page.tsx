@@ -20,6 +20,9 @@ import {
   Plus,
   Settings,
   Circle,
+  Package,
+  Clock,
+  CheckCircle,
 } from "lucide-react"
 
 interface GuildBot {
@@ -52,6 +55,7 @@ export default async function DashboardPage() {
   let subscriptionStatus: string | null = null
   let bots: GuildBot[] = []
   let activeBots = 0
+  let orders: any[] = []
 
   if (discordId) {
     const { data: user } = await supabase
@@ -96,6 +100,34 @@ export default async function DashboardPage() {
 
         activeBots = bots.filter((b) => b.status === "active").length
       }
+
+      // Fetch custom bot orders from Discord bot manager
+      const { data: ordersData } = await supabase
+        .schema("store")
+        .from("custom_bot_orders")
+        .select("id, bot_slug, status, metadata, created_at, paid_at, deployed_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10)
+
+      orders = (ordersData || []).map((o: any) => {
+        let meta: Record<string, unknown> = {}
+        if (typeof o.metadata === "string") {
+          try { meta = JSON.parse(o.metadata) } catch { meta = {} }
+        } else { meta = (o.metadata ?? {}) as Record<string, unknown> }
+        return {
+          id: o.id,
+          bot_slug: o.bot_slug,
+          bot_name: (meta.bot_name as string) || o.bot_slug,
+          status: o.status,
+          total_price: (meta.total_price as number) || 0,
+          duration_label: (meta.duration_label as string) || "",
+          whitelabel: (meta.whitelabel as boolean) || false,
+          created_at: o.created_at,
+          paid_at: o.paid_at,
+          deployed_at: o.deployed_at,
+        }
+      })
     }
   }
 
@@ -271,6 +303,65 @@ export default async function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Custom Bot Orders from Discord Bot Manager */}
+      {orders.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Pedidos de Bots (Discord)</h2>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {orders.map((order) => (
+              <Card key={order.id} className="glass">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                      <Package className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">
+                          {order.bot_name || order.bot_slug}
+                        </p>
+                        {order.status === "paid" || order.status === "deployed" ? (
+                          <CheckCircle className="h-4 w-4 text-emerald-500" />
+                        ) : order.status === "pending" || order.status === "awaiting_payment" ? (
+                          <Clock className="h-4 w-4 text-yellow-500" />
+                        ) : (
+                          <Circle className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {order.duration_label}
+                        {order.whitelabel && " (Whitelabel)"}
+                      </p>
+                      <p className="text-xs font-medium mt-1">
+                        R$ {order.total_price.toFixed(2).replace(".", ",")}
+                      </p>
+                      <div className="mt-2">
+                        <span className={cn(
+                          "text-xs px-2 py-0.5 rounded-full font-medium",
+                          order.status === "paid" || order.status === "deployed"
+                            ? "bg-emerald-500/10 text-emerald-500"
+                            : order.status === "pending" || order.status === "awaiting_payment"
+                              ? "bg-yellow-500/10 text-yellow-500"
+                              : "bg-muted text-muted-foreground"
+                        )}>
+                          {order.status === "paid" ? "Pago" : 
+                           order.status === "deployed" ? "Deployado" :
+                           order.status === "pending" ? "Pendente" :
+                           order.status === "awaiting_payment" ? "Aguardando Pagamento" :
+                           order.status === "deploying" ? "Em Deploy" : order.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
