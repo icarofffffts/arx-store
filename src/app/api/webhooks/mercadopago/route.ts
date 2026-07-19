@@ -113,6 +113,8 @@ export async function POST(request: Request) {
           const paymentId = data.id;
           if (paymentId && typeof paymentId === "string") {
             const status = typeof data.status === "string" ? data.status : "approved";
+            
+            // Update invoices
             await supabase
               .schema("store")
               .from("invoices")
@@ -121,6 +123,35 @@ export async function POST(request: Request) {
                 paid_at: status === "approved" ? new Date().toISOString() : null,
               })
               .eq("mp_payment_id", paymentId);
+            
+            // Update custom bot orders (website purchases)
+            if (status === "approved") {
+              const { data: orders } = await supabase
+                .schema("store")
+                .from("custom_bot_orders")
+                .select("id, metadata")
+                .eq("status", "awaiting_payment");
+              
+              if (orders) {
+                for (const order of orders) {
+                  const meta = order.metadata as Record<string, unknown> || {};
+                  if (meta.mp_payment_id === paymentId) {
+                    await supabase
+                      .schema("store")
+                      .from("custom_bot_orders")
+                      .update({
+                        status: "paid",
+                        paid_at: new Date().toISOString(),
+                        metadata: {
+                          ...meta,
+                          mp_payment_id: paymentId,
+                        },
+                      })
+                      .eq("id", order.id);
+                  }
+                }
+              }
+            }
           }
           break;
         }
