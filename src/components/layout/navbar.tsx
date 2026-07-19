@@ -17,7 +17,8 @@ import {
 
 const NAV_LINKS = [
   { href: '/dashboard', label: 'Dashboard', auth: true },
-  { href: '/dashboard/planos', label: 'Planos', auth: true },
+  { href: '/produtos', label: 'Produtos', auth: true },
+  { href: '/dashboard/meus-bots', label: 'Meus Bots', auth: true },
   { href: '/dashboard/servidores', label: 'Servidores', auth: true },
 ]
 

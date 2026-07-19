@@ -1,24 +1,19 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Shield, Headphones, Wallet, Zap, Server, Check, ArrowRight, LayoutGrid } from "lucide-react"
+import { Shield, Headphones, Wallet, Zap, Server, Check, ArrowRight, LayoutGrid, Ticket, ShoppingCart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/server"
+import { BOT_PRODUCTS, PRICING_TIERS, formatPriceCents } from "@/lib/pricing"
 
 export const dynamic = 'force-dynamic'
-
-const plansFallback = [
-  { id: "1", slug: "free", name: "Free", price_cents: 0, bot_limit: 1, max_guilds: 1, description: "Ideal para comecar", features: JSON.stringify(["1 bot ativo", "1 servidor", "Comandos basicos", "Suporte da comunidade"]), is_active: true },
-  { id: "2", slug: "premium", name: "Premium", price_cents: 2990, bot_limit: 999, max_guilds: 3, description: "O mais popular", features: JSON.stringify(["Todos os bots", "Ate 3 servidores", "Painel web completo", "Suporte via ticket 24h", "Editor de configuracao"]), is_active: true },
-  { id: "3", slug: "enterprise", name: "Enterprise", price_cents: 7990, bot_limit: 999, max_guilds: 999, description: "Para servidores grandes", features: JSON.stringify(["Tudo do Premium", "Servidores ilimitados", "White-label", "Suporte prioritario", "Bot personalizado"]), is_active: true },
-]
 
 const features = [
   { icon: Shield, title: "Bots Prontos", description: "Shield Security, Aegis, Ticket, Invite e Mod. Plug-and-play e alto padrao." },
   { icon: LayoutGrid, title: "Painel Intuitivo", description: "Gerencie tudo pelo dashboard. Zero comandos complicados e interface limpa." },
   { icon: Zap, title: "Deploy Rapido", description: "Adicione bots ao seu servidor quase imediatamente apos a selecao." },
-  { icon: Wallet, title: "Precos Justos", description: "Planos construidos da comunidade iniciante ate o level enterprise." },
+  { icon: Wallet, title: "Precos Justos", description: "Compra unica, sem assinatura. Pague uma vez e use quando quiser." },
   { icon: Server, title: "Host Confiavel", description: "Infraestrutura flexivel e redundante para evitar quedas criticas." },
   { icon: Headphones, title: "Suporte Tecnico", description: "Nossa equipe orienta, gerencia e ajusta via ticket para seu servidor." },
 ]
@@ -28,7 +23,6 @@ export default async function LandingPage() {
 
   let activeBots = 0
   let activeGuilds = 0
-  let plans: any[] = []
 
   try {
     const { count: botCount } = await supabase
@@ -43,16 +37,8 @@ export default async function LandingPage() {
       .from("guilds")
       .select("*", { count: "exact", head: true })
     activeGuilds = guildCount ?? 0
-
-    const { data: plansData } = await supabase
-      .schema("store")
-      .from("plans")
-      .select("*")
-      .eq("is_active", true)
-      .order("price_cents", { ascending: true })
-    plans = plansData ?? plansFallback
   } catch {
-    plans = plansFallback
+    // ignore
   }
 
   const stats = [
@@ -184,32 +170,27 @@ export default async function LandingPage() {
       </main>
 
       {/* ================================================================ */}
-      {/* PRICING */}
+      {/* PRODUCTS */}
       {/* ================================================================ */}
       <section className="py-32 border-t border-outline-variant bg-surface-container-lowest">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-20 space-y-4 max-w-2xl mx-auto">
-            <h2 className="text-[12px] font-bold uppercase tracking-[0.2em] text-primary">Planos</h2>
-            <p className="text-3xl md:text-5xl font-heading font-[520] tracking-[-0.04em] text-on-surface">Escale Com Seguranca</p>
-            <p className="text-on-surface-variant text-[15px] tracking-tight">Comece com o basico e avance conforme seu servidor cresce. Zero taxa surpresa.</p>
+            <h2 className="text-[12px] font-bold uppercase tracking-[0.2em] text-primary">Nossos Bots</h2>
+            <p className="text-3xl md:text-5xl font-heading font-[520] tracking-[-0.04em] text-on-surface">Compra Unica, Ativa Quando Quiser</p>
+            <p className="text-on-surface-variant text-[15px] tracking-tight">Sem assinatura mensal. Pague uma vez, use quando precisar. Suporte via Discord.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-center">
-            {plans.map((plan: any, i: number) => {
-              const featuresList = (() => {
-                if (typeof plan.features === "string") {
-                  try { return JSON.parse(plan.features as string); } catch { return []; }
-                }
-                return plan.features ?? [];
-              })()
-              const isHighlighted = plan.slug === "premium"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {BOT_PRODUCTS.map((product, i: number) => {
+              const Icon = product.icon === 'ticket' ? Ticket : ShoppingCart
+              const isHighlighted = product.slug === 'promisse-tickets'
 
               return (
                 <Card
-                  key={plan.id}
+                  key={product.slug}
                   className={cn(
                     "relative flex flex-col bg-surface-container border-outline-variant rounded-xl transition-all duration-300",
-                    isHighlighted ? "border-primary/50 shadow-[0_0_80px_rgba(225,29,72,0.08)] md:-translate-y-4 md:scale-[1.02] bg-surface-container-high z-10 py-4" : "hover:border-outline-variant/80 hover:bg-surface-container-high",
+                    isHighlighted ? "border-primary/50 shadow-[0_0_80px_rgba(225,29,72,0.08)] md:scale-[1.02] bg-surface-container-high z-10 py-4" : "hover:border-outline-variant/80 hover:bg-surface-container-high",
                     "animate-in"
                   )}
                   style={{ animationDelay: `${i * 100}ms` }}
@@ -217,37 +198,42 @@ export default async function LandingPage() {
                   {isHighlighted && (
                     <div className="absolute -top-4 left-0 right-0 mx-auto w-fit">
                       <div className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.1em] px-3 py-1 rounded">
-                        O Mais Recomendado
+                        O Mais Popular
                       </div>
                     </div>
                   )}
                   <CardHeader className="text-center pb-6 border-b border-outline-variant/50">
-                    <CardTitle className="text-[16px] font-heading font-medium tracking-tight text-on-surface-variant uppercase">{plan.name}</CardTitle>
-                    <div className="mt-6 flex justify-center items-baseline gap-1">
-                      <span className="text-4xl lg:text-5xl font-heading font-[520] tracking-tight text-on-surface">
-                        {plan.price_cents > 0
-                          ? `R$ ${(plan.price_cents / 100).toFixed(2).replace(".", ",")}`
-                          : "Gratis"}
-                      </span>
-                      {plan.price_cents > 0 && <span className="text-on-surface-variant text-sm font-medium">/mes</span>}
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
+                      <Icon className="h-6 w-6 text-primary" />
                     </div>
-                    <CardDescription className="mt-4 text-[13px] tracking-tight">{plan.description}</CardDescription>
+                    <CardTitle className="text-xl font-heading font-medium tracking-tight text-on-surface">{product.name}</CardTitle>
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      {PRICING_TIERS.map((tier) => (
+                        <div key={tier.months} className="text-center">
+                          <div className="text-sm font-bold text-on-surface">{formatPriceCents(tier.priceCents)}</div>
+                          <div className="text-[10px] text-on-surface-variant uppercase">{tier.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <CardDescription className="mt-4 text-[13px] tracking-tight">{product.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 pt-8 px-8">
                     <ul className="space-y-4">
-                      {featuresList.map((feature: any) => {
-                        const text = typeof feature === "string" ? feature : feature.label ?? feature
-                        return (
-                          <li key={text} className="flex items-start gap-3">
-                            <Check className={cn(
-                              "h-[18px] w-[18px] mt-[1px] shrink-0",
-                              isHighlighted ? "text-primary" : "text-on-surface-variant"
-                            )} />
-                            <span className="text-[14px] text-on-surface tracking-tight leading-tight">{text}</span>
-                          </li>
-                        )
-                      })}
+                      {product.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-3">
+                          <Check className={cn(
+                            "h-[18px] w-[18px] mt-[1px] shrink-0",
+                            isHighlighted ? "text-primary" : "text-on-surface-variant"
+                          )} />
+                          <span className="text-[14px] text-on-surface tracking-tight leading-tight">{feature}</span>
+                        </li>
+                      ))}
                     </ul>
+                    {product.allowTicketAddon && (
+                      <div className="mt-4 text-xs text-on-surface-variant bg-surface-container-highest rounded p-2 text-center">
+                        Addon Sistema de Ticket disponível (+{formatPriceCents(790)})
+                      </div>
+                    )}
                   </CardContent>
                   <CardFooter className="pt-8 px-8 pb-8">
                     <Button
@@ -259,8 +245,9 @@ export default async function LandingPage() {
                           : "bg-surface-container-highest hover:bg-surface-container border border-outline-variant text-on-surface"
                       )}
                     >
-                      <Link href="/dashboard">
-                        {plan.price_cents > 0 ? `Assinar ${plan.name}` : "Comecar Gratis"}
+                      <Link href={`/produtos/${product.slug}`}>
+                        Comprar {product.name}
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   </CardFooter>
