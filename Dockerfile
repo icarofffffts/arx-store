@@ -62,7 +62,7 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
-  CMD node -e "const h={'x-internal-secret':'"$INTERNAL_API_SECRET"'};require('http').request({hostname:'localhost',port:3000,path:'/api/health',headers:h},(r)=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"
+HEALTHCHECK --interval=15s --timeout=10s --start-period=60s --retries=3 \
+  CMD node -e "const h={'x-internal-secret':'"$INTERNAL_API_SECRET"'};const e=()=>process.exit(1);const r=require('http').request({hostname:'localhost',port:3000,path:'/api/health',headers:h},(res)=>{process.exit(res.statusCode===200?0:1)});r.on('error',e);r.setTimeout(8000,()=>{r.destroy();e()})"
 
 CMD ["node", "server.js"]
