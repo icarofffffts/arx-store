@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { Menu, X, User, CreditCard, LogOut, ShoppingBag } from 'lucide-react'
 import { useAuth } from '@/components/providers/auth-context'
 import { Button } from '@/components/ui/button'
@@ -35,6 +36,12 @@ function getInitials(name?: string | null): string {
 export function Navbar() {
   const { user, isAuthenticated, status, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const pathname = usePathname()
+
+  // Don't render navbar on dashboard routes (dashboard has its own sidebar)
+  if (pathname?.startsWith('/dashboard')) {
+    return null
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
