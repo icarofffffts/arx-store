@@ -107,7 +107,7 @@ export default async function LandingPage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="bg-surface-container border-outline-variant hover:bg-surface-container-high text-on-surface px-8 h-14 text-[15px] font-medium tracking-tight rounded-md transition-all">
-                  <Link href="/dashboard/planos">Ver Planos</Link>
+                  <Link href="/produtos">Ver Produtos</Link>
                 </Button>
               </div>
             </div>

@@ -163,7 +163,7 @@ export default async function BillingPage() {
                 <CancelSubscriptionDialog />
               ) : (
                 <Button asChild>
-                  <a href="/dashboard/planos">Ver Planos</a>
+                  <a href="/produtos">Ver Produtos</a>
                 </Button>
               )}
             </CardFooter>

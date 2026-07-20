@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Server,
-  Crown,
+  ShoppingBag,
+  Bot,
   Receipt,
   Settings,
-  Bot,
   Rocket,
   BarChart3,
 } from "lucide-react"
@@ -22,8 +22,9 @@ import Image from "next/image"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/produtos", label: "Produtos", icon: ShoppingBag },
+  { href: "/dashboard/meus-bots", label: "Meus Bots", icon: Bot },
   { href: "/dashboard/servidores", label: "Servidores", icon: Server },
-  { href: "/dashboard/planos", label: "Planos", icon: Crown },
   { href: "/dashboard/deployments", label: "Deployments", icon: Rocket },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/faturamento", label: "Faturamento", icon: Receipt },

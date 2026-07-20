@@ -293,10 +293,10 @@ export default async function DashboardPage() {
                   Adicionar Bot
                 </Button>
               </Link>
-              <Link href="/dashboard/planos" className="block">
+              <Link href="/produtos" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <ShoppingBag className="mr-2 h-4 w-4" />
-                  Ver Planos
+                  Ver Produtos
                 </Button>
               </Link>
             </CardContent>
