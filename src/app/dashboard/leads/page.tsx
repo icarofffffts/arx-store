@@ -198,7 +198,7 @@ export default function LeadsPage() {
           <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">Nenhum lead encontrado</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Compartilhe /capturar-lead para receber interessados
+            Compartilhe /demo para receber interessados
           </p>
         </Card>
       ) : (
