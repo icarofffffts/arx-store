@@ -1,5 +1,5 @@
 // Bot product pricing — shared between website and Discord bot manager
-export type BotSlug = 'promisse-tickets' | 'vendas-ghost-studio'
+export type BotSlug = 'arx-ticket' | 'arx-shop'
 export type DurationMonths = 1 | 3 | 6 | 0 // 0 = lifetime
 
 export interface BotProduct {
@@ -19,8 +19,8 @@ export interface PricingTier {
 
 export const BOT_PRODUCTS: BotProduct[] = [
   {
-    slug: 'promisse-tickets',
-    name: 'Promisse Tickets',
+    slug: 'arx-ticket',
+    name: 'ARX Ticket',
     description: 'Sistema completo de tickets com pagamento integrado diretamente no Discord.',
     icon: 'ticket',
     features: [
@@ -33,8 +33,8 @@ export const BOT_PRODUCTS: BotProduct[] = [
     allowTicketAddon: false,
   },
   {
-    slug: 'vendas-ghost-studio',
-    name: 'Vendas Ghost Studio',
+    slug: 'arx-shop',
+    name: 'ARX Shop',
     description: 'Loja completa no Discord com produtos, carrinho e entregas automáticas.',
     icon: 'shopping',
     features: [

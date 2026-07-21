@@ -11,6 +11,7 @@ import {
   Settings,
   Rocket,
   BarChart3,
+  Users,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatPlanLabel } from "@/lib/utils"
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/produtos", label: "Produtos", icon: ShoppingBag },
   { href: "/dashboard/meus-bots", label: "Meus Bots", icon: Bot },
+  { href: "/dashboard/leads", label: "Leads", icon: Users },
   { href: "/dashboard/servidores", label: "Servidores", icon: Server },
   { href: "/dashboard/deployments", label: "Deployments", icon: Rocket },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },

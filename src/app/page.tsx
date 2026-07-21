@@ -183,7 +183,7 @@ export default async function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {BOT_PRODUCTS.map((product, i: number) => {
               const Icon = product.icon === 'ticket' ? Ticket : ShoppingCart
-              const isHighlighted = product.slug === 'promisse-tickets'
+              const isHighlighted = product.slug === 'arx-ticket'
 
               return (
                 <Card

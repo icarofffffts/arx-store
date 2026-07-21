@@ -17,8 +17,8 @@ interface Deployment {
 }
 
 const BOT_LABELS: Record<string, string> = {
-  "promisse-tickets": "🎫 Promisse Tickets",
-  "vendas-ghost-studio": "🛒 Vendas Ghost Studio",
+  "arx-ticket": "🎫 ARX Ticket",
+  "arx-shop": "🛒 ARX Shop",
   "custom_bot": "⭐ Bot Personalizado",
 }
 

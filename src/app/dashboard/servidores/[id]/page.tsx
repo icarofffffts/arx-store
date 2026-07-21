@@ -5,15 +5,15 @@ import { GuildBotsManager } from "./guild-bots-manager"
 
 const AVAILABLE_BOTS = [
   {
-    slug: "promisse-tickets",
-    name: "Ticket Premium",
+    slug: "arx-ticket",
+    name: "ARX Ticket",
     description: "Sistema completo de tickets com pagamento integrado.",
     category: "Vendas"
   },
   {
-    slug: "vendas-ghost-studio",
-    name: "E-Commerce",
-    description: "Painel de vendas, carrinho, produtos e automacoes de entrega.",
+    slug: "arx-shop",
+    name: "ARX Shop",
+    description: "Loja completa no Discord com produtos, carrinho e entregas automaticas.",
     category: "Vendas"
   },
   {

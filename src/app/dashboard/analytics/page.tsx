@@ -99,8 +99,8 @@ export default async function AnalyticsPage() {
     }
     const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1
     const labels: Record<string, string> = {
-      "promisse-tickets": "🎫 Promisse Tickets",
-      "vendas-ghost-studio": "🛒 Vendas Ghost Studio",
+      "arx-ticket": "🎫 ARX Ticket",
+      "arx-shop": "🛒 ARX Shop",
       "custom_bot": "⭐ Bot Personalizado",
     }
     botStats = Object.entries(counts)
